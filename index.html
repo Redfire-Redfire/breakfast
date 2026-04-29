@@ -270,36 +270,55 @@ function doExport(range){
     alert('✅ 已导出「'+label+'」数据！');
 }
 
+// ========== 弹窗 ==========
+function showModal(title,content){
+    closeModal();
+    let d=document.createElement('div');
+    d.id='mo';
+    d.className='modal on';
+    d.innerHTML='<div class="box"><div class="head"><span>'+title+'</span><button class="cx" id="btnCloseModal">✕</button></div>'+content+'</div>';
+    document.body.appendChild(d);
+    document.getElementById('btnCloseModal').onclick=closeModal;
+    d.onclick=function(e){if(e.target===d)closeModal();};
+}
+function closeModal(){let m=document.getElementById('mo');if(m)m.remove();}
+
 // ========== 历史记录 ==========
 function openHistory(){
     if(!isAdmin)return alert('请先登录管理员');
     let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
     let html='<div style="display:flex;gap:6px;margin-bottom:10px"><div class="stat-s"><div class="v">'+total+'</div><div class="l">总订单</div></div><div class="stat-s"><div class="v">¥'+sales.toFixed(2)+'</div><div class="l">累计销售</div></div></div>';
     html+='<div class="sec">🏆 累计畅销排行</div>'+buildRank(countItems(h),10)+'<hr style="margin:10px 0">';
-    html+=h.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':h.slice(0,50).map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="hitem"><button class="del" onclick="del('+x.id+')">🗑️</button><div class="hd"><span class="htag">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="hdet">'+ih+'</div><div class="ht">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
-    html+='<button class="danger" onclick="delAll()">🗑️ 清空全部历史记录</button>';
+    html+=h.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':h.slice(0,50).map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="hitem"><button class="del" data-id="'+x.id+'">🗑️</button><div class="hd"><span class="htag">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="hdet">'+ih+'</div><div class="ht">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
+    html+='<button class="danger" id="btnDelAll">🗑️ 清空全部历史记录</button>';
     showModal('📊 全部历史记录',html);
+    // 事件绑定
+    document.querySelectorAll('.del').forEach(btn=>{
+        btn.onclick=function(){del(parseInt(this.dataset.id));};
+    });
+    let bda=document.getElementById('btnDelAll');
+    if(bda)bda.onclick=delAll;
 }
+
 async function del(id){
     if(!confirm('确定删除？'))return;
-    let{error}=await sb.from('orders').delete().eq('id',id);
-    if(error){alert('删除失败');return;}
-    loadOrders();closeModal();openHistory();
+    await sb.from('orders').delete().eq('id',id);
+    await loadOrders();
+    closeModal();
+    openHistory();
 }
 async function delAll(){
     if(!confirm('⚠️清空全部？不可恢复！'))return;
-    let{error}=await sb.from('orders').delete().gt('id',0);
-    if(error){alert('清空失败');return;}
-    loadOrders();closeModal();alert('已清空');
+    await sb.from('orders').delete().gt('id',0);
+    await loadOrders();
+    closeModal();
+    openHistory();
+    alert('已清空');
 }
 
-// ========== 弹窗 ==========
-function showModal(title,content){
-    let d=document.createElement('div');
-    d.innerHTML='<div class="modal on" id="mo" onclick="if(event.target===this)closeModal()"><div class="box"><div class="head"><span>'+title+'</span><button class="cx" onclick="closeModal()">✕</button></div>'+content+'</div></div>';
-    document.body.appendChild(d);
-}
-function closeModal(){let m=document.getElementById('mo');if(m)m.remove();}
+
+
+
 
 // ========== 初始化 ==========
 selectTable(1);
