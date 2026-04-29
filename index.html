@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🥣 早餐点餐</title>
+<title>🥣 早餐点餐系统</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -15,14 +15,13 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 .header{display:flex;justify-content:space-between;align-items:center;margin:8px 0 4px;flex-wrap:wrap;gap:8px}
 h1{font-size:24px;color:#333}
 .header-buttons{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.btn-history,.btn-export,.btn-admin{background:#fff8f0;border:2px solid #f57c00;color:#f57c00;padding:6px 12px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
-.btn-history:hover,.btn-export:hover,.btn-admin:hover{background:#f57c00;color:#fff}
-.btn-export{border-color:#4caf50;color:#4caf50}
-.btn-export:hover{background:#4caf50;color:#fff}
-.btn-admin{border-color:#ff9800;color:#ff9800}
-.btn-admin:hover{background:#ff9800;color:#fff}
+.btn{background:#fff8f0;border:2px solid #f57c00;color:#f57c00;padding:6px 12px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn:hover{background:#f57c00;color:#fff}
+.btn-green{border-color:#4caf50;color:#4caf50}
+.btn-green:hover{background:#4caf50;color:#fff}
+.btn-orange{border-color:#ff9800;color:#ff9800}
+.btn-orange:hover{background:#ff9800;color:#fff}
 .admin-badge{background:#ff9800;color:#fff;padding:2px 7px;border-radius:10px;font-size:10px;margin-left:4px}
-/* 四个桌子强制一排 */
 .table-selection{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .table-btn{padding:10px 4px;border:3px solid #ddd;border-radius:14px;background:#fafafa;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;text-align:center;color:#999;white-space:nowrap}
 .table-btn:hover{border-color:#f57c00;color:#f57c00;background:#fff8f0}
@@ -37,8 +36,8 @@ h1{font-size:24px;color:#333}
 .item-name{font-size:14px;font-weight:500;color:#333}
 .item-price{font-size:11px;color:#999}
 .quantity-control{display:flex;align-items:center;gap:4px}
-.btn-minus,.btn-plus{width:26px;height:26px;border-radius:50%;border:2px solid #f57c00;background:#fff;color:#f57c00;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;line-height:1}
-.btn-minus:hover,.btn-plus:hover{background:#f57c00;color:#fff}
+.btn-qty{width:26px;height:26px;border-radius:50%;border:2px solid #f57c00;background:#fff;color:#f57c00;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;line-height:1;transition:all .2s}
+.btn-qty:hover{background:#f57c00;color:#fff}
 .quantity{font-size:15px;font-weight:700;min-width:18px;text-align:center;color:#333}
 .subtotal{font-size:13px;color:#f57c00;font-weight:700;min-width:42px;text-align:right}
 .total-section{background:linear-gradient(135deg,#fff8f0,#ffe4c4);border-radius:14px;padding:16px;margin-top:8px;text-align:center}
@@ -61,30 +60,32 @@ h1{font-size:24px;color:#333}
 .ranking-count{font-weight:700;color:#f57c00;font-size:11px;flex-shrink:0}
 .table-stat-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#555;border-bottom:1px dashed #eee}
 .table-stat-row span{font-weight:700;color:#f57c00}
-.btn-view-all{width:100%;padding:7px;margin-top:8px;background:#f5f5f5;border:1px solid #ddd;border-radius:9px;color:#666;font-size:12px;cursor:pointer}
-.btn-toggle-rank{background:none;border:none;color:#4caf50;font-size:11px;cursor:pointer;text-decoration:underline;margin-top:6px;display:block;width:100%;text-align:center}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:center;padding:15px}
 .modal-overlay.active{display:flex}
 .modal{background:#fff;border-radius:18px;padding:22px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid #f0f0f0}
-.btn-close{width:30px;height:30px;border-radius:50%;border:none;background:#f5f5f5;font-size:16px;cursor:pointer}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:12px;border-bottom:2px solid #f0f0f0}
+.modal-title{font-size:18px;font-weight:700;color:#333}
+.btn-close{width:30px;height:30px;border-radius:50%;border:none;background:#f5f5f5;font-size:16px;cursor:pointer;transition:all .2s}
+.btn-close:hover{background:#ff5252;color:#fff}
 .history-item{background:#fafafa;border-radius:11px;padding:10px;margin-bottom:8px;border-left:4px solid #f57c00;position:relative}
 .history-table-badge{display:inline-block;background:#f57c00;color:#fff;border-radius:9px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:6px}
 .history-date{font-size:11px;color:#999;margin-bottom:5px}
 .history-details{font-size:12px;color:#555;line-height:1.6;padding-right:28px}
 .history-total{font-size:15px;font-weight:700;color:#f57c00;margin-top:5px;text-align:right}
-.btn-delete-order{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:13px}
-.btn-delete-all{width:100%;padding:9px;background:#fff;border:1px solid #ff5252;border-radius:9px;color:#ff5252;cursor:pointer;margin-top:8px;font-size:13px}
-.export-option{display:block;width:100%;padding:12px;margin:6px 0;border:2px solid #4caf50;border-radius:11px;background:#fff;color:#4caf50;font-size:15px;font-weight:700;cursor:pointer}
+.btn-delete-order{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:13px;transition:all .2s}
+.btn-delete-order:hover{background:#ff5252;color:#fff}
+.btn-danger{width:100%;padding:9px;background:#fff;border:1px solid #ff5252;border-radius:9px;color:#ff5252;cursor:pointer;margin-top:8px;font-size:13px;transition:all .2s}
+.btn-danger:hover{background:#ff5252;color:#fff}
+.export-option{display:block;width:100%;padding:12px;margin:6px 0;border:2px solid #4caf50;border-radius:11px;background:#fff;color:#4caf50;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
 .export-option:hover{background:#4caf50;color:#fff}
 @media(max-width:900px){.main-wrapper{flex-direction:column;align-items:center}.side-panel{position:static;max-width:520px}}
-@media(max-width:400px){.table-btn{font-size:12px;padding:8px 2px}.table-btn .icon{font-size:17px}.btn-history,.btn-export,.btn-admin{font-size:11px;padding:5px 9px}h1{font-size:21px}}
+@media(max-width:400px){.table-btn{font-size:12px;padding:8px 2px}.table-btn .icon{font-size:17px}.btn{font-size:11px;padding:5px 9px}h1{font-size:21px}}
 </style>
 </head>
 <body>
 <div class="main-wrapper">
 <div class="container">
-<div class="header"><h1>🌅 早餐点餐<span id="adminBadge"></span></h1><div class="header-buttons"><button class="btn-history" onclick="openHistory()">📋 记录</button><button class="btn-export" onclick="openExport()">📥 导出</button><button class="btn-admin" onclick="toggleAdmin()" id="btnAdmin">🔐 管理员</button></div></div>
+<div class="header"><h1>🌅 早餐点餐<span id="adminBadge"></span></h1><div class="header-buttons"><button class="btn" onclick="openHistory()">📋 记录</button><button class="btn btn-green" onclick="openExport()">📥 导出</button><button class="btn btn-orange" onclick="toggleAdmin()" id="btnAdmin">🔐 管理员</button></div></div>
 <p class="subtitle">👇 选择桌号（数据云端同步）</p>
 <div class="table-selection">
 <div class="table-btn active" onclick="selectTable(1)" id="tb1"><span class="icon">🪑</span>1号桌</div>
@@ -93,102 +94,146 @@ h1{font-size:24px;color:#333}
 <div class="table-btn" onclick="selectTable(4)" id="tb4"><span class="icon">🪑</span>4号桌</div>
 </div>
 <div class="current-table" id="ct">📍 当前：🪑 1号桌</div>
-
 <div class="menu-category">🫓 煎烙面食类</div>
-<div class="menu-item"><div class="item-info"><div class="item-name">韭菜盒子</div><div class="item-price">¥3.00/片</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('jiucaihezi',-1)">−</div><div class="quantity" id="q-jiucaihezi">0</div><div class="btn-plus" onclick="cq('jiucaihezi',1)">+</div></div><div class="subtotal" id="s-jiucaihezi">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">茄子盒子</div><div class="item-price">¥3.00/片</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('qiezihezi',-1)">−</div><div class="quantity" id="q-qiezihezi">0</div><div class="btn-plus" onclick="cq('qiezihezi',1)">+</div></div><div class="subtotal" id="s-qiezihezi">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">葱花饼</div><div class="item-price">¥3.00/片</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('conghuabing',-1)">−</div><div class="quantity" id="q-conghuabing">0</div><div class="btn-plus" onclick="cq('conghuabing',1)">+</div></div><div class="subtotal" id="s-conghuabing">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">油饼</div><div class="item-price">¥1.00/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('youbing',-1)">−</div><div class="quantity" id="q-youbing">0</div><div class="btn-plus" onclick="cq('youbing',1)">+</div></div><div class="subtotal" id="s-youbing">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">油条</div><div class="item-price">¥1.00/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('youtiao',-1)">−</div><div class="quantity" id="q-youtiao">0</div><div class="btn-plus" onclick="cq('youtiao',1)">+</div></div><div class="subtotal" id="s-youtiao">¥0</div></div>
-
+<div class="menu-item"><div class="item-info"><div class="item-name">韭菜盒子</div><div class="item-price">¥3.00/片</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('jiucaihezi',-1)">−</div><div class="quantity" id="q-jiucaihezi">0</div><div class="btn-qty" onclick="cq('jiucaihezi',1)">+</div></div><div class="subtotal" id="s-jiucaihezi">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">茄子盒子</div><div class="item-price">¥3.00/片</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('qiezihezi',-1)">−</div><div class="quantity" id="q-qiezihezi">0</div><div class="btn-qty" onclick="cq('qiezihezi',1)">+</div></div><div class="subtotal" id="s-qiezihezi">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">葱花饼</div><div class="item-price">¥3.00/片</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('conghuabing',-1)">−</div><div class="quantity" id="q-conghuabing">0</div><div class="btn-qty" onclick="cq('conghuabing',1)">+</div></div><div class="subtotal" id="s-conghuabing">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">油饼</div><div class="item-price">¥1.00/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('youbing',-1)">−</div><div class="quantity" id="q-youbing">0</div><div class="btn-qty" onclick="cq('youbing',1)">+</div></div><div class="subtotal" id="s-youbing">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">油条</div><div class="item-price">¥1.00/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('youtiao',-1)">−</div><div class="quantity" id="q-youtiao">0</div><div class="btn-qty" onclick="cq('youtiao',1)">+</div></div><div class="subtotal" id="s-youtiao">¥0</div></div>
 <div class="menu-category">🥟 包子类</div>
-<div class="menu-item"><div class="item-info"><div class="item-name">肉包</div><div class="item-price">¥2.00/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('roubao',-1)">−</div><div class="quantity" id="q-roubao">0</div><div class="btn-plus" onclick="cq('roubao',1)">+</div></div><div class="subtotal" id="s-roubao">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">韭菜包</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('jiucaibao',-1)">−</div><div class="quantity" id="q-jiucaibao">0</div><div class="btn-plus" onclick="cq('jiucaibao',1)">+</div></div><div class="subtotal" id="s-jiucaibao">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">茄子包</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('qiezibao',-1)">−</div><div class="quantity" id="q-qiezibao">0</div><div class="btn-plus" onclick="cq('qiezibao',1)">+</div></div><div class="subtotal" id="s-qiezibao">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">南瓜包</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('nanguabao',-1)">−</div><div class="quantity" id="q-nanguabao">0</div><div class="btn-plus" onclick="cq('nanguabao',1)">+</div></div><div class="subtotal" id="s-nanguabao">¥0</div></div>
-
+<div class="menu-item"><div class="item-info"><div class="item-name">肉包</div><div class="item-price">¥2.00/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('roubao',-1)">−</div><div class="quantity" id="q-roubao">0</div><div class="btn-qty" onclick="cq('roubao',1)">+</div></div><div class="subtotal" id="s-roubao">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">韭菜包</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('jiucaibao',-1)">−</div><div class="quantity" id="q-jiucaibao">0</div><div class="btn-qty" onclick="cq('jiucaibao',1)">+</div></div><div class="subtotal" id="s-jiucaibao">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">茄子包</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('qiezibao',-1)">−</div><div class="quantity" id="q-qiezibao">0</div><div class="btn-qty" onclick="cq('qiezibao',1)">+</div></div><div class="subtotal" id="s-qiezibao">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">南瓜包</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('nanguabao',-1)">−</div><div class="quantity" id="q-nanguabao">0</div><div class="btn-qty" onclick="cq('nanguabao',1)">+</div></div><div class="subtotal" id="s-nanguabao">¥0</div></div>
 <div class="menu-category">🥚 蛋类</div>
-<div class="menu-item"><div class="item-info"><div class="item-name">水煮蛋</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('shuizhudan',-1)">−</div><div class="quantity" id="q-shuizhudan">0</div><div class="btn-plus" onclick="cq('shuizhudan',1)">+</div></div><div class="subtotal" id="s-shuizhudan">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">茶叶蛋</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('chayedan',-1)">−</div><div class="quantity" id="q-chayedan">0</div><div class="btn-plus" onclick="cq('chayedan',1)">+</div></div><div class="subtotal" id="s-chayedan">¥0</div></div>
-
+<div class="menu-item"><div class="item-info"><div class="item-name">水煮蛋</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('shuizhudan',-1)">−</div><div class="quantity" id="q-shuizhudan">0</div><div class="btn-qty" onclick="cq('shuizhudan',1)">+</div></div><div class="subtotal" id="s-shuizhudan">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">茶叶蛋</div><div class="item-price">¥1.50/个</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('chayedan',-1)">−</div><div class="quantity" id="q-chayedan">0</div><div class="btn-qty" onclick="cq('chayedan',1)">+</div></div><div class="subtotal" id="s-chayedan">¥0</div></div>
 <div class="menu-category">🥣 粥汤类</div>
-<div class="menu-item"><div class="item-info"><div class="item-name">八宝粥</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('babaozhou',-1)">−</div><div class="quantity" id="q-babaozhou">0</div><div class="btn-plus" onclick="cq('babaozhou',1)">+</div></div><div class="subtotal" id="s-babaozhou">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">紫菜汤</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('zicaitang',-1)">−</div><div class="quantity" id="q-zicaitang">0</div><div class="btn-plus" onclick="cq('zicaitang',1)">+</div></div><div class="subtotal" id="s-zicaitang">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">烩豆腐</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('huidoufu',-1)">−</div><div class="quantity" id="q-huidoufu">0</div><div class="btn-plus" onclick="cq('huidoufu',1)">+</div></div><div class="subtotal" id="s-huidoufu">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">豆腐脑</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('doufunao',-1)">−</div><div class="quantity" id="q-doufunao">0</div><div class="btn-plus" onclick="cq('doufunao',1)">+</div></div><div class="subtotal" id="s-doufunao">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">拌汤</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('bantang',-1)">−</div><div class="quantity" id="q-bantang">0</div><div class="btn-plus" onclick="cq('bantang',1)">+</div></div><div class="subtotal" id="s-bantang">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">黑米粥</div><div class="item-price">¥2.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('heimizhou',-1)">−</div><div class="quantity" id="q-heimizhou">0</div><div class="btn-plus" onclick="cq('heimizhou',1)">+</div></div><div class="subtotal" id="s-heimizhou">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">米汤</div><div class="item-price">¥2.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('mitang',-1)">−</div><div class="quantity" id="q-mitang">0</div><div class="btn-plus" onclick="cq('mitang',1)">+</div></div><div class="subtotal" id="s-mitang">¥0</div></div>
-<div class="menu-item"><div class="item-info"><div class="item-name">油茶</div><div class="item-price">¥2.00/碗</div></div><div class="quantity-control"><div class="btn-minus" onclick="cq('youcha',-1)">−</div><div class="quantity" id="q-youcha">0</div><div class="btn-plus" onclick="cq('youcha',1)">+</div></div><div class="subtotal" id="s-youcha">¥0</div></div>
-
+<div class="menu-item"><div class="item-info"><div class="item-name">八宝粥</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('babaozhou',-1)">−</div><div class="quantity" id="q-babaozhou">0</div><div class="btn-qty" onclick="cq('babaozhou',1)">+</div></div><div class="subtotal" id="s-babaozhou">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">紫菜汤</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('zicaitang',-1)">−</div><div class="quantity" id="q-zicaitang">0</div><div class="btn-qty" onclick="cq('zicaitang',1)">+</div></div><div class="subtotal" id="s-zicaitang">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">烩豆腐</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('huidoufu',-1)">−</div><div class="quantity" id="q-huidoufu">0</div><div class="btn-qty" onclick="cq('huidoufu',1)">+</div></div><div class="subtotal" id="s-huidoufu">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">豆腐脑</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('doufunao',-1)">−</div><div class="quantity" id="q-doufunao">0</div><div class="btn-qty" onclick="cq('doufunao',1)">+</div></div><div class="subtotal" id="s-doufunao">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">拌汤</div><div class="item-price">¥3.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('bantang',-1)">−</div><div class="quantity" id="q-bantang">0</div><div class="btn-qty" onclick="cq('bantang',1)">+</div></div><div class="subtotal" id="s-bantang">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">黑米粥</div><div class="item-price">¥2.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('heimizhou',-1)">−</div><div class="quantity" id="q-heimizhou">0</div><div class="btn-qty" onclick="cq('heimizhou',1)">+</div></div><div class="subtotal" id="s-heimizhou">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">米汤</div><div class="item-price">¥2.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('mitang',-1)">−</div><div class="quantity" id="q-mitang">0</div><div class="btn-qty" onclick="cq('mitang',1)">+</div></div><div class="subtotal" id="s-mitang">¥0</div></div>
+<div class="menu-item"><div class="item-info"><div class="item-name">油茶</div><div class="item-price">¥2.00/碗</div></div><div class="quantity-control"><div class="btn-qty" onclick="cq('youcha',-1)">−</div><div class="quantity" id="q-youcha">0</div><div class="btn-qty" onclick="cq('youcha',1)">+</div></div><div class="subtotal" id="s-youcha">¥0</div></div>
 <div class="total-section"><div class="total-row"><span>💰 合计</span><span class="total-price" id="tp">¥0.00</span></div></div>
 <div class="btn-group"><button class="btn-clear" onclick="clearCart()">🗑️ 清空</button><button class="btn-checkout" onclick="checkout()">🛒 下单</button></div>
 </div>
-
-<div class="side-panel" id="sidePanel">
-<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>
-</div>
+<div class="side-panel" id="sidePanel"><p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p></div>
 </div>
 
 <script>
-// ⚠️ 改成你的真实值
+// ========== 配置区 ==========
 const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
 const SUPABASE_ANON_KEY =
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
-// ⚠️ 管理密码
 const ADMIN_PASSWORD='najiu888';
+// ============================
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let isAdmin=false,ct=1,cache=[],showCumulative=false,cart={};
-for(let t=1;t<=4;t++){cart[t]={};for(let k in menu)cart[t][k]=0;}
+let isAdmin=false,ct=1,cache=[],cart={};
+for(let t=1;t<=4;t++){cart[t]={};for(let k in M)cart[t][k]=0;}
 
-const menu={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
+const M={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
 
 function toggleAdmin(){
-    if(isAdmin){isAdmin=false;document.getElementById('adminBadge').textContent='';document.getElementById('btnAdmin').textContent='🔐 管理员';cache=[];document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>';return;}
-    let pwd=prompt('请输入管理密码：');
-    if(pwd===ADMIN_PASSWORD){isAdmin=true;document.getElementById('adminBadge').innerHTML='<span class="admin-badge">管理员</span>';document.getElementById('btnAdmin').textContent='🔓 退出';loadOrders();}else if(pwd){alert('密码错误');}
+    if(isAdmin){logout();return;}
+    let p=prompt('请输入管理密码：');
+    if(p===ADMIN_PASSWORD){isAdmin=true;document.getElementById('adminBadge').innerHTML='<span class="admin-badge">管理员</span>';document.getElementById('btnAdmin').textContent='🔓 退出';loadOrders();}
+    else if(p)alert('密码错误');
 }
-async function loadOrders(){
-    if(!isAdmin)return;
-    let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});
-    if(!error){cache=data||[];refreshSidePanel();}
-}
-function selectTable(t){ct=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('active');document.getElementById('tb'+t).classList.add('active');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';for(let k in menu)ud(k);ut();}
+function logout(){isAdmin=false;cache=[];document.getElementById('adminBadge').textContent='';document.getElementById('btnAdmin').textContent='🔐 管理员';document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>';}
+
+async function loadOrders(){if(!isAdmin)return;let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];refreshPanel();}}
+
+function selectTable(t){ct=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('active');document.getElementById('tb'+t).classList.add('active');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';for(let k in M)ud(k);ut();}
 function cq(k,d){let n=cart[ct][k]+d;if(n<0)n=0;if(n>99)n=99;cart[ct][k]=n;ud(k);ut();}
-function ud(k){document.getElementById('q-'+k).textContent=cart[ct][k];document.getElementById('s-'+k).textContent='¥'+(cart[ct][k]*menu[k].p).toFixed(2);}
-function ut(){let t=0;for(let k in cart[ct])t+=cart[ct][k]*menu[k].p;document.getElementById('tp').textContent='¥'+t.toFixed(2);}
+function ud(k){document.getElementById('q-'+k).textContent=cart[ct][k];document.getElementById('s-'+k).textContent='¥'+(cart[ct][k]*M[k].p).toFixed(2);}
+function ut(){let t=0;for(let k in cart[ct])t+=cart[ct][k]*M[k].p;document.getElementById('tp').textContent='¥'+t.toFixed(2);}
 function clearCart(){if(confirm('清空'+ct+'号桌？')){for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();}}
+
 async function checkout(){
     let it=[],t=0,c=0,detail='📋 '+ct+'号桌订单：\n\n';
-    for(let k in cart[ct]){if(cart[ct][k]>0){let s=cart[ct][k]*menu[k].p;detail+=menu[k].e+' '+menu[k].n+' ×'+cart[ct][k]+menu[k].u+' = ¥'+s.toFixed(2)+'\n';it.push({name:menu[k].n,emoji:menu[k].e,qty:cart[ct][k],unit:menu[k].u,price:menu[k].p,subtotal:s});t+=s;c+=cart[ct][k];}}
+    for(let k in cart[ct]){if(cart[ct][k]>0){let s=cart[ct][k]*M[k].p;detail+=M[k].e+' '+M[k].n+' ×'+cart[ct][k]+M[k].u+' = ¥'+s.toFixed(2)+'\n';it.push({name:M[k].n,emoji:M[k].e,qty:cart[ct][k],unit:M[k].u,price:M[k].p,subtotal:s});t+=s;c+=cart[ct][k];}}
     if(c===0){alert('请先选餐');return;}
     detail+='\n——————————\n💰 合计：¥'+t.toFixed(2)+'\n📦 共'+c+'件';
     if(!confirm(detail))return;
     let{error}=await sb.from('orders').insert({table_num:ct,items:it,total:t});
-    if(error){alert('失败'+error.message);}else{alert('下单成功！');for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();if(isAdmin)loadOrders();}
+    if(error){alert('下单失败');}else{alert('下单成功！');for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();if(isAdmin)loadOrders();}
 }
+
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
 function countItems(orders){let cnt={};orders.forEach(o=>o.items.forEach(i=>{if(!cnt[i.name])cnt[i.name]=0;cnt[i.name]+=i.qty;}));return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);}
 function buildRank(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:15px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';return'<div class="ranking-item"><div class="ranking-badge '+cl+'">'+(i+1)+'</div><span class="ranking-name">'+r[0]+'</span><div class="ranking-bar-bg"><div class="ranking-bar-fill" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span class="ranking-count">'+r[1]+'</span></div>';}).join('');}
-function refreshSidePanel(){
+
+function refreshPanel(){
     if(!isAdmin)return;
-    let h=getHD(),todayStr=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(todayStr)),tt=0;
+    let h=getHD(),ts=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(ts)),tt=0;
     tod.forEach(o=>tt+=o.total);
-    let rd=showCumulative?countItems(h):countItems(tod);
-    let tsb={1:0,2:0,3:0,4:0},tcb={1:0,2:0,3:0,4:0};
-    tod.forEach(o=>{let tn=o.table;if(tsb[tn]!==undefined){tsb[tn]+=o.total;tcb[tn]++;}});
-    let th='';for(let t=1;t<=4;t++)th+='<div class="table-stat-row">🪑 '+t+'号桌 <span>¥'+tsb[t].toFixed(2)+'</span>（'+tcb[t]+'单）</div>';
+    let rd=countItems(tod);
+    let tb={1:0,2:0,3:0,4:0},tc={1:0,2:0,3:0,4:0};
+    tod.forEach(o=>{let tn=o.table;if(tb[tn]!==undefined){tb[tn]+=o.total;tc[tn]++;}});
+    let th='';for(let t=1;t<=4;t++)th+='<div class="table-stat-row">🪑 '+t+'号桌 <span>¥'+tb[t].toFixed(2)+'</span>（'+tc[t]+'单）</div>';
     document.getElementById('sidePanel').innerHTML=
     '<div class="stat-card"><div class="value">¥'+tt.toFixed(2)+'</div><div class="label">💰 今日销售额</div></div>'+
     '<div class="stat-row"><div class="stat-mini"><div class="value">'+tod.length+'</div><div class="label">📋 今日订单</div></div></div>'+
-    '<div class="section-title">🏆 <span>'+(showCumulative?'累计':'今日')+'</span>畅销排行</div>'+buildRank(rd,5)+
+    '<div class="section-title">🏆 今日畅销排行</div>'+buildRank(rd,5)+
     '<div class="section-title" style="margin-top:12px">🪑 各桌今日</div>'+th+
-    '<button class="btn-view-all" onclick="openHistory()">📋 全部记录</button>'+
-    '<button class="btn-toggle-rank" onclick="toggleRank()">📈 查看'+(showCumulative?'今日':'累计')+'畅销排行</button>';
+    '<button class="btn btn-green" style="width:100%;margin-top:8px" onclick="openHistory()">📋 全部记录</button>';
 }
-function toggleRank(){showCumulative=!showCumulative;refreshSidePanel();}
+
 function openExport(){
-    if(!isAdmin)return alert('请先点「管理员」输入密码');
+    if(!isAdmin)return alert('请先登录管理员');
+    showModal('📥 导出Excel',
+    '<button class="export-option" onclick="doExport(\'today\');closeModal()">📅 仅今日</button>'+
+    '<button class="export-option" onclick="doExport(\'week\');closeModal()">📆 最近7天</button>'+
+    '<button class="export-option" onclick="doExport(\'all\');closeModal()">📚 全部历史</button>');
+}
+function doExport(range){
+    let h=getHD(),f=h,label='全部',now=new Date();
+    if(range==='today'){let ts=now.toLocaleDateString('zh-CN');f=h.filter(x=>x.date.includes(ts));label='今日';}
+    else if(range==='week'){let wa=new Date(now.getTime()-7*24*60*60*1000).toLocaleDateString('zh-CN');f=h.filter(x=>x.date.split(' ')[0]>=wa);label='7天';}
+    if(f.length===0){alert('无数据');return;}
+    let csv='\uFEFF序号,日期,桌号,商品,数量,单价,小计,订单总额\n',idx=1;
+    f.forEach(o=>o.items.forEach(i=>{csv+=idx+',"'+o.date+'",'+o.table+'号桌,"'+i.name+'",'+i.qty+','+i.price.toFixed(2)+','+i.subtotal.toFixed(2)+','+o.total.toFixed(2)+'\n';idx++;}));
+    let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='早餐订单_'+label+'.csv';a.click();
+    alert('✅ 已导出「'+label+'」数据！');
+}
+
+function openHistory(){
+    if(!isAdmin)return alert('请先登录管理员');
+    let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
+    let html='<div style="display:flex;gap:8px;margin-bottom:15px"><div class="stat-mini"><div class="value">'+total+'</div><div class="label">总订单</div></div><div class="stat-mini"><div class="value">¥'+sales.toFixed(2)+'</div><div class="label">累计销售</div></div><div class="stat-mini"><div class="value">¥'+(total>0?(sales/total).toFixed(0):0)+'</div><div class="label">平均每单</div></div></div>';
+    html+='<div class="section-title">🏆 累计畅销排行</div>'+buildRank(countItems(h),10)+'<hr style="margin:15px 0">';
+    html+=h.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':h.slice(0,50).map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="history-item"><button class="btn-delete-order" onclick="del('+x.id+')">🗑️</button><div class="history-date"><span class="history-table-badge">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="history-details">'+ih+'</div><div class="history-total">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
+    html+='<button class="btn-danger" onclick="delAll()">🗑️ 清空全部历史记录</button>';
+    showModal('📊 全部历史记录',html);
+}
+
+async function del(id){
+    if(!confirm('确定删除？'))return;
+    let{error}=await sb.from('orders').delete().eq('id',id);
+    if(error){alert('删除失败');return;}
+    loadOrders();closeModal();openHistory();
+}
+async function delAll(){
+    if(!confirm('⚠️清空全部？不可恢复！'))return;
+    let{error}=await sb.from('orders').delete().gt('id',0);
+    if(error){alert('清空失败');return;}
+    loadOrders();closeModal();alert('已清空');
+}
+
+function showModal(title,content){
     let d=document.createElement('div');
-    d.innerHTML='<div class="modal-overlay active" onclick="if(event.target===this
+    d.innerHTML='<div class="modal-overlay active" id="modalOverlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-header"><span class="modal-title">'+title+'</span><button class="btn-close" onclick="closeModal()">✕</button></div>'+content+'</div></div>';
+    document.body.appendChild(d);
+}
+function closeModal(){let m=document.getElementById('modalOverlay');if(m)m.remove();}
+
+for(let k in M)ud(k);ut();
+setInterval(()=>{if(isAdmin)loadOrders();},30000);
+</script>
+</body>
+</html>
