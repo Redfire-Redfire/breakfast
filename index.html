@@ -14,11 +14,14 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 .side-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#4caf50,#66bb6a,#4caf50);border-radius:20px 20px 0 0}
 .header{display:flex;justify-content:space-between;align-items:center;margin:10px 0 5px;flex-wrap:wrap;gap:10px}
 h1{font-size:26px;color:#333}
-.header-buttons{display:flex;gap:8px}
-.btn-history,.btn-export{background:#fff8f0;border:2px solid #f57c00;color:#f57c00;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
-.btn-history:hover,.btn-export:hover{background:#f57c00;color:#fff}
+.header-buttons{display:flex;gap:8px;align-items:center}
+.btn-history,.btn-export,.btn-admin{background:#fff8f0;border:2px solid #f57c00;color:#f57c00;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-history:hover,.btn-export:hover,.btn-admin:hover{background:#f57c00;color:#fff}
 .btn-export{border-color:#4caf50;color:#4caf50}
 .btn-export:hover{background:#4caf50;color:#fff}
+.btn-admin{border-color:#ff9800;color:#ff9800}
+.btn-admin:hover{background:#ff9800;color:#fff}
+.admin-badge{background:#ff9800;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px}
 .table-selection{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;justify-content:center}
 .table-btn{flex:1;min-width:60px;padding:12px 10px;border:3px solid #ddd;border-radius:15px;background:#fafafa;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;text-align:center;color:#999}
 .table-btn:hover{border-color:#f57c00;color:#f57c00;background:#fff8f0}
@@ -80,7 +83,7 @@ h1{font-size:26px;color:#333}
 <body>
 <div class="main-wrapper">
 <div class="container">
-<div class="header"><h1>🌅 早餐点餐</h1><div class="header-buttons"><button class="btn-export" onclick="openExport()">📥 导出</button><button class="btn-history" onclick="openHistory()">📋 记录</button></div></div>
+<div class="header"><h1>🌅 早餐点餐<span id="adminBadge"></span></h1><div class="header-buttons"><button class="btn-history" onclick="openHistory()">📋 记录</button><button class="btn-export" onclick="openExport()">📥 导出</button><button class="btn-admin" onclick="toggleAdmin()" id="btnAdmin">🔐 管理员</button></div></div>
 <p class="subtitle">👇 选择桌号（云端同步）</p>
 <div class="table-selection">
 <div class="table-btn active" onclick="selectTable(1)" id="tb1"><span class="icon">🪑</span>1号桌</div>
@@ -121,28 +124,37 @@ h1{font-size:26px;color:#333}
 <div class="btn-group"><button class="btn-clear" onclick="clearCart()">🗑️ 清空</button><button class="btn-checkout" onclick="checkout()">🛒 下单</button></div>
 </div>
 
-<div class="side-panel">
-<div class="stat-card"><div class="value" id="ts">¥0.00</div><div class="label">💰 今日销售额</div></div>
-<div class="stat-row"><div class="stat-mini"><div class="value" id="to">0</div><div class="label">📋 今日订单</div></div></div>
-<div class="section-title">🏆 <span id="rankLabel">今日</span>畅销排行</div><div id="ranking"></div>
-<div class="section-title" style="margin-top:12px">🪑 各桌今日</div><div id="tables"></div>
-<button class="btn-view-all" onclick="openHistory()">📋 全部记录</button>
-<button class="btn-toggle-rank" onclick="toggleRank()" id="toggleBtn">📈 查看累计畅销排行</button>
+<div class="side-panel" id="sidePanel">
+<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>
 </div>
 </div>
 
 <script>
 // ⚠️ 改成你的真实值
-const SUPABASE_URL = '{{SUPABASE_URL}}';
-const SUPABASE_ANON_KEY='{{SUPABASE_ANON_KEY}}';
+const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
+const SUPABASE_ANON_KEY =
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
+// ⚠️ 设置管理密码（老板登录用）
+const ADMIN_PASSWORD='najiu888';
+
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let isAdmin=false,ct=1,cache=[],showCumulative=false,cart={};
+for(let t=1;t<=4;t++){cart[t]={};for(let k in menu)cart[t][k]=0;}
 
 const menu={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
 
-let ct=1,cache=[],showCumulative=false,cart={};
-for(let t=1;t<=4;t++){cart[t]={};for(let k in menu)cart[t][k]=0;}
+function toggleAdmin(){
+    if(isAdmin){isAdmin=false;document.getElementById('adminBadge').textContent='';document.getElementById('btnAdmin').textContent='🔐 管理员';cache=[];document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>';return;}
+    let pwd=prompt('请输入管理密码：');
+    if(pwd===ADMIN_PASSWORD){isAdmin=true;document.getElementById('adminBadge').innerHTML='<span class="admin-badge">管理员</span>';document.getElementById('btnAdmin').textContent='🔓 退出';loadOrders();}else if(pwd){alert('密码错误');}
+}
 
-async function load(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];refresh();}}
+async function loadOrders(){
+    if(!isAdmin)return;
+    let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+    if(!error){cache=data||[];refreshSidePanel();}
+}
+
 function selectTable(t){ct=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('active');document.getElementById('tb'+t).classList.add('active');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';for(let k in menu)ud(k);ut();}
 function cq(k,d){let n=cart[ct][k]+d;if(n<0)n=0;if(n>99)n=99;cart[ct][k]=n;ud(k);ut();}
 function ud(k){document.getElementById('q-'+k).textContent=cart[ct][k];document.getElementById('s-'+k).textContent='¥'+(cart[ct][k]*menu[k].p).toFixed(2);}
@@ -151,55 +163,44 @@ function clearCart(){if(confirm('清空'+ct+'号桌？')){for(let k in cart[ct])
 
 async function checkout(){
     let it=[],t=0,c=0,detail='📋 '+ct+'号桌订单：\n\n';
-    for(let k in cart[ct]){
-        if(cart[ct][k]>0){
-            let s=cart[ct][k]*menu[k].p;
-            detail+=menu[k].e+' '+menu[k].n+' ×'+cart[ct][k]+menu[k].u+' = ¥'+s.toFixed(2)+'\n';
-            it.push({name:menu[k].n,emoji:menu[k].e,qty:cart[ct][k],unit:menu[k].u,price:menu[k].p,subtotal:s});
-            t+=s;c+=cart[ct][k];
-        }
-    }
+    for(let k in cart[ct]){if(cart[ct][k]>0){let s=cart[ct][k]*menu[k].p;detail+=menu[k].e+' '+menu[k].n+' ×'+cart[ct][k]+menu[k].u+' = ¥'+s.toFixed(2)+'\n';it.push({name:menu[k].n,emoji:menu[k].e,qty:cart[ct][k],unit:menu[k].u,price:menu[k].p,subtotal:s});t+=s;c+=cart[ct][k];}}
     if(c===0){alert('请先选餐');return;}
     detail+='\n——————————\n💰 合计：¥'+t.toFixed(2)+'\n📦 共'+c+'件';
     if(!confirm(detail))return;
     let{error}=await sb.from('orders').insert({table_num:ct,items:it,total:t});
-    if(error){alert('失败'+error.message);}else{alert('下单成功！');for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();load();}
+    if(error){alert('失败'+error.message);}else{alert('下单成功！');for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();if(isAdmin)loadOrders();}
 }
 
-function getHistoryData(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
+function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
 function countItems(orders){let cnt={};orders.forEach(o=>o.items.forEach(i=>{if(!cnt[i.name])cnt[i.name]=0;cnt[i.name]+=i.qty;}));return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);}
-function buildRanking(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:15px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';return'<div class="ranking-item"><div class="ranking-badge '+cl+'">'+(i+1)+'</div><span class="ranking-name">'+r[0]+'</span><div class="ranking-bar-bg"><div class="ranking-bar-fill" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span class="ranking-count">'+r[1]+'</span></div>';}).join('');}
+function buildRank(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:15px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';return'<div class="ranking-item"><div class="ranking-badge '+cl+'">'+(i+1)+'</div><span class="ranking-name">'+r[0]+'</span><div class="ranking-bar-bg"><div class="ranking-bar-fill" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span class="ranking-count">'+r[1]+'</span></div>';}).join('');}
 
-function refresh(){
-    let h=getHistoryData();
-    let todayStr=new Date().toLocaleDateString('zh-CN');
-    let tod=h.filter(o=>o.date.includes(todayStr));
-    let tt=0;tod.forEach(o=>tt+=o.total);
-    document.getElementById('ts').textContent='¥'+tt.toFixed(2);
-    document.getElementById('to').textContent=tod.length;
-    
-    let rankData=showCumulative?countItems(h):countItems(tod);
-    document.getElementById('ranking').innerHTML=buildRanking(rankData,5);
-    document.getElementById('rankLabel').textContent=showCumulative?'累计':'今日';
-    document.getElementById('toggleBtn').textContent=showCumulative?'📅 查看今日畅销排行':'📈 查看累计畅销排行';
-    
+function refreshSidePanel(){
+    if(!isAdmin)return;
+    let h=getHD(),todayStr=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(todayStr)),tt=0;
+    tod.forEach(o=>tt+=o.total);
+    let rd=showCumulative?countItems(h):countItems(tod);
     let tsb={1:0,2:0,3:0,4:0},tcb={1:0,2:0,3:0,4:0};
     tod.forEach(o=>{let tn=o.table;if(tsb[tn]!==undefined){tsb[tn]+=o.total;tcb[tn]++;}});
     let th='';for(let t=1;t<=4;t++)th+='<div class="table-stat-row">🪑 '+t+'号桌 <span>¥'+tsb[t].toFixed(2)+'</span>（'+tcb[t]+'单）</div>';
-    document.getElementById('tables').innerHTML=th;
+    document.getElementById('sidePanel').innerHTML=
+    '<div class="stat-card"><div class="value">¥'+tt.toFixed(2)+'</div><div class="label">💰 今日销售额</div></div>'+
+    '<div class="stat-row"><div class="stat-mini"><div class="value">'+tod.length+'</div><div class="label">📋 今日订单</div></div></div>'+
+    '<div class="section-title">🏆 <span>'+(showCumulative?'累计':'今日')+'</span>畅销排行</div>'+buildRank(rd,5)+
+    '<div class="section-title" style="margin-top:12px">🪑 各桌今日</div>'+th+
+    '<button class="btn-view-all" onclick="openHistory()">📋 全部记录</button>'+
+    '<button class="btn-toggle-rank" onclick="toggleRank()">📈 查看'+(showCumulative?'今日':'累计')+'畅销排行</button>';
 }
+function toggleRank(){showCumulative=!showCumulative;refreshSidePanel();}
 
-function toggleRank(){showCumulative=!showCumulative;refresh();}
-
-// Excel导出
 function openExport(){
+    if(!isAdmin)return alert('请先点「管理员」输入密码');
     let d=document.createElement('div');
     d.innerHTML='<div class="modal-overlay active" onclick="if(event.target===this)this.remove()"><div class="modal" style="max-width:360px"><div class="modal-header"><span>📥 导出Excel</span><button class="btn-close" onclick="this.closest(\'.modal-overlay\').remove()">✕</button></div><button class="export-option" onclick="doExport(\'today\');this.closest(\'.modal-overlay\').remove()">📅 仅今日</button><button class="export-option" onclick="doExport(\'week\');this.closest(\'.modal-overlay\').remove()">📆 最近7天</button><button class="export-option" onclick="doExport(\'all\');this.closest(\'.modal-overlay\').remove()">📚 全部历史</button></div></div>';
     document.body.appendChild(d);
 }
-
 function doExport(range){
-    let h=getHistoryData(),f=h,label='全部',now=new Date();
+    let h=getHD(),f=h,label='全部',now=new Date();
     if(range==='today'){let ts=now.toLocaleDateString('zh-CN');f=h.filter(x=>x.date.includes(ts));label='今日';}
     else if(range==='week'){let wa=new Date(now.getTime()-7*24*60*60*1000).toLocaleDateString('zh-CN');f=h.filter(x=>{let d=x.date.split(' ')[0];return d>=wa;});label='7天';}
     if(f.length===0){alert('无数据');return;}
@@ -210,12 +211,12 @@ function doExport(range){
     alert('✅ 已导出「'+label+'」数据！');
 }
 
-// 历史记录弹窗
 function openHistory(){
-    let h=getHistoryData(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
+    if(!isAdmin)return alert('请先点「管理员」输入密码');
+    let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
     let list=h.slice(0,50);
     let html='<div style="display:flex;gap:8px;margin-bottom:15px"><div class="stat-mini"><div class="value">'+total+'</div><div class="label">总订单</div></div><div class="stat-mini"><div class="value">¥'+sales.toFixed(2)+'</div><div class="label">累计销售</div></div><div class="stat-mini"><div class="value">¥'+(total>0?(sales/total).toFixed(0):0)+'</div><div class="label">平均每单</div></div></div>';
-    html+='<div class="section-title">🏆 累计畅销排行</div>'+buildRanking(countItems(h),10)+'<hr style="margin:15px 0">';
+    html+='<div class="section-title">🏆 累计畅销排行</div>'+buildRank(countItems(h),10)+'<hr style="margin:15px 0">';
     html+=list.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':list.map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="history-item"><button class="btn-delete-order" onclick="del('+x.id+')">🗑️</button><div class="history-date"><span class="history-table-badge">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="history-details">'+ih+'</div><div class="history-total">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
     html+='<button class="btn-delete-all" onclick="delAll()">🗑️ 清空全部历史记录</button>';
     let d=document.createElement('div');
@@ -223,10 +224,10 @@ function openHistory(){
     document.body.appendChild(d);
 }
 
-async function del(id){if(!confirm('确定删除？'))return;await sb.from('orders').delete().eq('id',id);load();document.querySelector('.modal-overlay')?.remove();openHistory();}
-async function delAll(){if(!confirm('⚠️清空全部？不可恢复！'))return;await sb.from('orders').delete().gt('id',0);load();document.querySelector('.modal-overlay')?.remove();alert('已清空');}
+async function del(id){if(!confirm('确定删除？'))return;await sb.from('orders').delete().eq('id',id);loadOrders();document.querySelector('.modal-overlay')?.remove();openHistory();}
+async function delAll(){if(!confirm('⚠️清空全部？不可恢复！'))return;await sb.from('orders').delete().gt('id',0);loadOrders();document.querySelector('.modal-overlay')?.remove();alert('已清空');}
 
-for(let k in menu)ud(k);ut();load();setInterval(load,30000);
+for(let k in menu)ud(k);ut();setInterval(()=>{if(isAdmin)loadOrders();},30000);
 </script>
 </body>
 </html>
