@@ -138,10 +138,11 @@ const SUPABASE_ANON_KEY =
 const ADMIN_PASSWORD='najiu888';
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const menu={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
+
 let isAdmin=false,ct=1,cache=[],showCumulative=false,cart={};
 for(let t=1;t<=4;t++){cart[t]={};for(let k in menu)cart[t][k]=0;}
 
-const menu={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
 
 function toggleAdmin(){
     if(isAdmin){isAdmin=false;document.getElementById('adminBadge').textContent='';document.getElementById('btnAdmin').textContent='🔐 管理员';cache=[];document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>';return;}
