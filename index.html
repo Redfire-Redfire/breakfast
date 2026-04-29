@@ -124,49 +124,141 @@ h1{font-size:24px;color:#333}
 </div>
 
 <script>
-// ========== 配置区 ==========
 const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
 const SUPABASE_ANON_KEY =
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
 const ADMIN_PASSWORD='najiu888';
-// ============================
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let isAdmin=false,ct=1,cache=[],cart={};
-for(let t=1;t<=4;t++){cart[t]={};for(let k in M)cart[t][k]=0;}
+let isAdmin=false,ct=1,cache=[];
 
-const M={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
+// 菜谱
+const M={
+jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},
+qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},
+conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},
+youbing:{n:'油饼',p:1,e:'🫓',u:'个'},
+youtiao:{n:'油条',p:1,e:'🥖',u:'个'},
+roubao:{n:'肉包',p:2,e:'🥟',u:'个'},
+jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},
+qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},
+nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},
+shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},
+chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},
+babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},
+zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},
+huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},
+doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},
+bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},
+heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},
+mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},
+youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}
+};
+
+// 初始化4桌购物车
+const cart={1:{},2:{},3:{},4:{}};
+for(let t=1;t<=4;t++){for(let k in M)cart[t][k]=0;}
+
+function selectTable(t){
+    ct=t;
+    for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('active');
+    document.getElementById('tb'+t).classList.add('active');
+    document.getElementById('ct').innerHTML='📍 当前：🪑 '+t+'号桌';
+    refreshAllQty();
+    updateTotal();
+}
+
+function cq(key,delta){
+    let qty=cart[ct][key]+delta;
+    if(qty<0)qty=0;
+    if(qty>99)qty=99;
+    cart[ct][key]=qty;
+    document.getElementById('q-'+key).textContent=qty;
+    document.getElementById('s-'+key).textContent='¥'+(qty*M[key].p).toFixed(2);
+    updateTotal();
+}
+
+function refreshAllQty(){
+    for(let k in M){
+        let q=cart[ct][k];
+        document.getElementById('q-'+k).textContent=q;
+        document.getElementById('s-'+k).textContent='¥'+(q*M[k].p).toFixed(2);
+    }
+}
+
+function updateTotal(){
+    let total=0;
+    for(let k in cart[ct])total+=cart[ct][k]*M[k].p;
+    document.getElementById('tp').textContent='¥'+total.toFixed(2);
+}
+
+function clearCart(){
+    if(!confirm('清空'+ct+'号桌？'))return;
+    for(let k in cart[ct]){cart[ct][k]=0;document.getElementById('q-'+k).textContent=0;document.getElementById('s-'+k).textContent='¥0';}
+    updateTotal();
+}
+
+async function checkout(){
+    let items=[],total=0,count=0,detail='📋 '+ct+'号桌订单：\n\n';
+    for(let k in cart[ct]){
+        let q=cart[ct][k];
+        if(q>0){
+            let sub=q*M[k].p;
+            detail+=M[k].e+' '+M[k].n+' ×'+q+M[k].u+' = ¥'+sub.toFixed(2)+'\n';
+            items.push({name:M[k].n,emoji:M[k].e,qty:q,unit:M[k].u,price:M[k].p,subtotal:sub});
+            total+=sub;count+=q;
+        }
+    }
+    if(count===0){alert('请先选餐');return;}
+    detail+='\n——————————\n💰 合计：¥'+total.toFixed(2)+'\n📦 共'+count+'件';
+    if(!confirm(detail))return;
+    let{error}=await sb.from('orders').insert({table_num:ct,items:items,total:total});
+    if(error){alert('下单失败');return;}
+    alert('下单成功！');
+    for(let k in cart[ct]){cart[ct][k]=0;document.getElementById('q-'+k).textContent=0;document.getElementById('s-'+k).textContent='¥0';}
+    updateTotal();
+    if(isAdmin)loadOrders();
+}
 
 function toggleAdmin(){
     if(isAdmin){logout();return;}
-    let p=prompt('请输入管理密码：');
-    if(p===ADMIN_PASSWORD){isAdmin=true;document.getElementById('adminBadge').innerHTML='<span class="admin-badge">管理员</span>';document.getElementById('btnAdmin').textContent='🔓 退出';loadOrders();}
-    else if(p)alert('密码错误');
+    let pwd=prompt('请输入管理密码：');
+    if(pwd===ADMIN_PASSWORD){
+        isAdmin=true;
+        document.getElementById('adminBadge').innerHTML='<span class="admin-badge">管理员</span>';
+        document.getElementById('btnAdmin').textContent='🔓 退出';
+        loadOrders();
+    }else if(pwd){alert('密码错误');}
 }
-function logout(){isAdmin=false;cache=[];document.getElementById('adminBadge').textContent='';document.getElementById('btnAdmin').textContent='🔐 管理员';document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>';}
-
-async function loadOrders(){if(!isAdmin)return;let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];refreshPanel();}}
-
-function selectTable(t){ct=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('active');document.getElementById('tb'+t).classList.add('active');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';for(let k in M)ud(k);ut();}
-function cq(k,d){let n=cart[ct][k]+d;if(n<0)n=0;if(n>99)n=99;cart[ct][k]=n;ud(k);ut();}
-function ud(k){document.getElementById('q-'+k).textContent=cart[ct][k];document.getElementById('s-'+k).textContent='¥'+(cart[ct][k]*M[k].p).toFixed(2);}
-function ut(){let t=0;for(let k in cart[ct])t+=cart[ct][k]*M[k].p;document.getElementById('tp').textContent='¥'+t.toFixed(2);}
-function clearCart(){if(confirm('清空'+ct+'号桌？')){for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();}}
-
-async function checkout(){
-    let it=[],t=0,c=0,detail='📋 '+ct+'号桌订单：\n\n';
-    for(let k in cart[ct]){if(cart[ct][k]>0){let s=cart[ct][k]*M[k].p;detail+=M[k].e+' '+M[k].n+' ×'+cart[ct][k]+M[k].u+' = ¥'+s.toFixed(2)+'\n';it.push({name:M[k].n,emoji:M[k].e,qty:cart[ct][k],unit:M[k].u,price:M[k].p,subtotal:s});t+=s;c+=cart[ct][k];}}
-    if(c===0){alert('请先选餐');return;}
-    detail+='\n——————————\n💰 合计：¥'+t.toFixed(2)+'\n📦 共'+c+'件';
-    if(!confirm(detail))return;
-    let{error}=await sb.from('orders').insert({table_num:ct,items:it,total:t});
-    if(error){alert('下单失败');}else{alert('下单成功！');for(let k in cart[ct]){cart[ct][k]=0;ud(k);}ut();if(isAdmin)loadOrders();}
+function logout(){
+    isAdmin=false;cache=[];
+    document.getElementById('adminBadge').textContent='';
+    document.getElementById('btnAdmin').textContent='🔐 管理员';
+    document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:40px;">🔐 点右上角「管理员」<br>输入密码查看数据</p>';
 }
 
-function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
-function countItems(orders){let cnt={};orders.forEach(o=>o.items.forEach(i=>{if(!cnt[i.name])cnt[i.name]=0;cnt[i.name]+=i.qty;}));return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);}
-function buildRank(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:15px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';return'<div class="ranking-item"><div class="ranking-badge '+cl+'">'+(i+1)+'</div><span class="ranking-name">'+r[0]+'</span><div class="ranking-bar-bg"><div class="ranking-bar-fill" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span class="ranking-count">'+r[1]+'</span></div>';}).join('');}
+async function loadOrders(){
+    if(!isAdmin)return;
+    let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+    if(!error){cache=data||[];refreshPanel();}
+}
 
+function getHD(){
+    return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));
+}
+function countItems(orders){
+    let cnt={};
+    orders.forEach(o=>o.items.forEach(i=>{if(!cnt[i.name])cnt[i.name]=0;cnt[i.name]+=i.qty;}));
+    return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+}
+function buildRank(data,max=5){
+    if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:15px;">暂无</div>';
+    let mx=data[0][1];
+    return data.slice(0,max).map((r,i)=>{
+        let cl=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+        return'<div class="ranking-item"><div class="ranking-badge '+cl+'">'+(i+1)+'</div><span class="ranking-name">'+r[0]+'</span><div class="ranking-bar-bg"><div class="ranking-bar-fill" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span class="ranking-count">'+r[1]+'</span></div>';
+    }).join('');
+}
 function refreshPanel(){
     if(!isAdmin)return;
     let h=getHD(),ts=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(ts)),tt=0;
@@ -232,7 +324,9 @@ function showModal(title,content){
 }
 function closeModal(){let m=document.getElementById('modalOverlay');if(m)m.remove();}
 
-for(let k in M)ud(k);ut();
+// 初始化显示
+refreshAllQty();
+updateTotal();
 setInterval(()=>{if(isAdmin)loadOrders();},30000);
 </script>
 </body>
