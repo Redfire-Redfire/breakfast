@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥣 早餐点餐系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fce4b8 0%, #fff5e6 50%, #ffe4c4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .main-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 960px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ff9800, #f57c00, #ff9800);
+        }
+
+        .side-panel {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 380px;
+            width: 100%;
+            position: sticky;
+            top: 20px;
+        }
+
+        .side-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4caf50, #66bb6a, #4caf50);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0 5px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        h1 {
+            font-size: 26px;
+            color: #333;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-history,
+        .btn-export {
+            background: #fff8f0;
+            border: 2px solid #f57c00;
+            color: #f57c00;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-history:hover,
+        .btn-export:hover {
+            background: #f57c00;
+            color: white;
+        }
+
+        .btn-export {
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .btn-export:hover {
+            background: #4caf50;
+            color: white;
+        }
+
+        .table-selection {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .table-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 12px 10px;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            background: #fafafa;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: #999;
+        }
+
+        .table-btn:hover {
+            border-color: #f57c00;
+            color: #f57c00;
+            background: #fff8f0;
+        }
+
+        .table-btn.active {
+            border-color: #f57c00;
+            background: linear-gradient(135deg, #fff8f0, #ffe4c4);
+            color: #f57c00;
+            box-shadow: 0 4px 12px rgba(245, 124, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .table-btn .icon {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .current-table {
+            text-align: center;
+            color: #f57c00;
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+            background: #fff8f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .menu-category {
+            font-size: 17px;
+            font-weight: bold;
+            color: #f57c00;
+            margin: 16px 0 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px dashed #fde0b2;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 10px;
+            margin: 4px 0;
+            background: #fafafa;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            gap: 6px;
+        }
+
+        .menu-item:hover {
+            background: #fff8f0;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .item-price {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-minus,
+        .btn-plus {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #f57c00;
+            background: white;
+            color: #f57c00;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .btn-minus:hover,
+        .btn-plus:hover {
+            background: #f57c00;
+            color: white;
+        }
+
+        .btn-minus:active,
+        .btn-plus:active {
+            transform: scale(0.9);
+        }
+
+        .quantity {
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .subtotal {
+            font-size: 14px;
+            color: #f57c00;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fde0b2, transparent);
+            margin: 15px 0;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #fff8f0, #ffe4c4);
+            border-radius: 15px;
+            padding: 18px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .total-price {
+            font-size: 34px;
+            font-weight: bold;
+            color: #f57c00;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-checkout {
+            flex: 1;
+            padding: 13px;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 124, 0, 0.3);
+        }
+
+        .btn-clear {
+            padding: 13px 18px;
+            background: transparent;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-clear:hover {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .items-count {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 13px;
+            margin-left: 6px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 5px 0 15px;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-mini {
+            flex: 1;
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-mini .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f57c00;
+        }
+
+        .stat-mini .label {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title .tab-btns {
+            display: flex;
+            gap: 4px;
+            margin-left: auto;
+        }
+
+        .tab-btn {
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            background: #f5f5f5;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #999;
+        }
+
+        .tab-btn.active {
+            background: #f57c00;
+            color: white;
+            border-color: #f57c00;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+
+        .ranking-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .gold {
+            background: #ffd700;
+        }
+        .silver {
+            background: #c0c0c0;
+        }
+        .bronze {
+            background: #cd7f32;
+        }
+        .normal {
+            background: #ddd;
+            color: #666;
+        }
+
+        .ranking-name {
+            flex: 1;
+            font-size: 13px;
+            color: #333;
+            min-width: 40px;
+        }
+
+        .ranking-bar-bg {
+            flex: 2;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            margin: 0 5px;
+            overflow: hidden;
+        }
+
+        .ranking-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9800, #f57c00);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .ranking-count {
+            font-weight: bold;
+            color: #f57c00;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .table-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .table-stat-row span {
+            font-weight: bold;
+            color: #f57c00;
+        }
+
+        .btn-view-all {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-view-all:hover {
+            background: #f57c00;
+            color: white;
+            border-color: #f57c00;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 550px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f5f5f5;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-close:hover {
+            background: #ff5252;
+            color: white;
+        }
+
+        .history-item {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #f57c00;
+        }
+
+        .history-table-badge {
+            display: inline-block;
+            background: #f57c00;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .history-details {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .history-total {
+            font-size: 17px;
+            font-weight: bold;
+            color: #f57c00;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 40px 20px;
+            color: #ccc;
+            font-size: 16px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .btn-delete-all {
+            width: 100%;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ff5252;
+            border-radius: 10px;
+            color: #ff5252;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-all:hover {
+            background: #ff5252;
+            color: white;
+        }
+
+        .export-modal-content {
+            text-align: center;
+        }
+
+        .export-option {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            background: white;
+            color: #4caf50;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-option:hover {
+            background: #4caf50;
+            color: white;
+        }
+
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .animate {
+            animation: bounce 0.3s ease;
+        }
+
+        @media (max-width: 920px) {
+            .main-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            .side-panel {
+                position: static;
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container,
+            .side-panel {
+                padding: 15px 10px;
+            }
+            .menu-item {
+                padding: 7px 6px;
+                gap: 3px;
+            }
+            .btn-minus,
+            .btn-plus {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+            }
+            .total-price {
+                font-size: 28px;
+            }
+            .table-btn {
+                padding: 8px 4px;
+                font-size: 13px;
+            }
+            .table-btn .icon {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <!-- 左侧：点餐区 -->
+        <div class="container">
+            <div class="header">
+                <h1>🌅 早餐点餐</h1>
+                <div class="header-buttons">
+                    <button class="btn-export" onclick="openExportModal()">📥 导出</button>
+                    <button class="btn-history" onclick="openHistory()">📋 全部记录</button>
+                </div>
+            </div>
+
+            <p class="subtitle">👇 选择桌号（每桌独立下单）</p>
+            <div class="table-selection">
+                <div class="table-btn active" onclick="selectTable(1)" id="tableBtn1">
+                    <span class="icon">🪑</span>1号桌
+                </div>
+                <div class="table-btn" onclick="selectTable(2)" id="tableBtn2">
+                    <span class="icon">🪑</span>2号桌
+                </div>
+                <div class="table-btn" onclick="selectTable(3)" id="tableBtn3">
+                    <span class="icon">🪑</span>3号桌
+                </div>
+                <div class="table-btn" onclick="selectTable(4)" id="tableBtn4">
+                    <span class="icon">🪑</span>4号桌
+                </div>
+            </div>
+            <div class="current-table" id="currentTableDisplay">📍 当前：🪑 1号桌</div>
+
+            <div class="menu-category">🫓 煎烙面食类</div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">韭菜盒子</div><div class="item-price">¥3.00/片</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('jiucaihezi', -1)">−</div>
+                    <div class="quantity" id="qty-jiucaihezi">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('jiucaihezi', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-jiucaihezi">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">茄子盒子</div><div class="item-price">¥3.00/片</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('qiezihezi', -1)">−</div>
+                    <div class="quantity" id="qty-qiezihezi">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('qiezihezi', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-qiezihezi">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">葱花饼</div><div class="item-price">¥3.00/片</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('conghuabing', -1)">−</div>
+                    <div class="quantity" id="qty-conghuabing">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('conghuabing', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-conghuabing">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">油饼 / 油条</div><div class="item-price">¥1.00/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('youbingyoutiao', -1)">−</div>
+                    <div class="quantity" id="qty-youbingyoutiao">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('youbingyoutiao', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-youbingyoutiao">¥0</div>
+            </div>
+
+            <div class="menu-category">🥟 包子类</div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">肉包</div><div class="item-price">¥2.00/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('roubao', -1)">−</div>
+                    <div class="quantity" id="qty-roubao">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('roubao', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-roubao">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">韭菜包</div><div class="item-price">¥1.50/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('jiucaibao', -1)">−</div>
+                    <div class="quantity" id="qty-jiucaibao">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('jiucaibao', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-jiucaibao">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">茄子包</div><div class="item-price">¥1.50/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('qiezibao', -1)">−</div>
+                    <div class="quantity" id="qty-qiezibao">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('qiezibao', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-qiezibao">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">南瓜包</div><div class="item-price">¥1.50/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('nanguabao', -1)">−</div>
+                    <div class="quantity" id="qty-nanguabao">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('nanguabao', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-nanguabao">¥0</div>
+            </div>
+
+            <div class="menu-category">🥚 蛋类</div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">水煮蛋</div><div class="item-price">¥1.50/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('shuizhudan', -1)">−</div>
+                    <div class="quantity" id="qty-shuizhudan">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('shuizhudan', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-shuizhudan">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">茶叶蛋</div><div class="item-price">¥1.50/个</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('chayedan', -1)">−</div>
+                    <div class="quantity" id="qty-chayedan">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('chayedan', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-chayedan">¥0</div>
+            </div>
+
+            <div class="menu-category">🥣 粥汤类</div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">八宝粥</div><div class="item-price">¥3.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('babaozhou', -1)">−</div>
+                    <div class="quantity" id="qty-babaozhou">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('babaozhou', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-babaozhou">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">紫菜汤</div><div class="item-price">¥3.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('zicaitang', -1)">−</div>
+                    <div class="quantity" id="qty-zicaitang">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('zicaitang', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-zicaitang">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">烩豆腐</div><div class="item-price">¥3.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('huidoufu', -1)">−</div>
+                    <div class="quantity" id="qty-huidoufu">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('huidoufu', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-huidoufu">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">豆腐脑</div><div class="item-price">¥3.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('doufunao', -1)">−</div>
+                    <div class="quantity" id="qty-doufunao">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('doufunao', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-doufunao">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">拌汤</div><div class="item-price">¥3.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('bantang', -1)">−</div>
+                    <div class="quantity" id="qty-bantang">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('bantang', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-bantang">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">黑米粥</div><div class="item-price">¥2.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('heimizhou', -1)">−</div>
+                    <div class="quantity" id="qty-heimizhou">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('heimizhou', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-heimizhou">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">米汤</div><div class="item-price">¥2.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('mitang', -1)">−</div>
+                    <div class="quantity" id="qty-mitang">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('mitang', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-mitang">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">油茶</div><div class="item-price">¥2.00/碗</div></div>
+                <div class="quantity-control">
+                    <div class="btn-minus" onclick="changeQuantity('youcha', -1)">−</div>
+                    <div class="quantity" id="qty-youcha">0</div>
+                    <div class="btn-plus" onclick="changeQuantity('youcha', 1)">+</div>
+                </div>
+                <div class="subtotal" id="sub-youcha">¥0</div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="total-section">
+                <div class="total-row">
+                    <span class="total-label">💰 合计</span>
+                    <span class="total-price" id="totalPrice">¥0.00</span>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-clear" onclick="clearCart()">🗑️ 清空</button>
+                <button class="btn-checkout" onclick="checkout()">🛒 下单 <span class="items-count" id="itemsCount">0</span></button>
+            </div>
+        </div>
+
+        <!-- 右侧面板 -->
+        <div class="side-panel">
+            <div class="panel-title">📊 数据概览</div>
+            <div class="stat-card">
+                <div class="value" id="todaySales">¥0.00</div>
+                <div class="label">💰 今日销售额</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-mini"><div class="value" id="todayOrders">0</div><div class="label">📋 今日订单</div></div>
+                <div class="stat-mini"><div class="value" id="todayAvg">¥0</div><div class="label">📊 今日桌均</div></div>
+            </div>
+            <div class="section-title">🏆 畅销排行 <span style="font-size:11px;color:#999;margin-left:auto;" id="rankLabel">今日</span></div>
+            <div id="rankingContainer"></div>
+            <div class="section-title" style="margin-top:12px;">🪑 各桌今日</div>
+            <div id="todayTableStats"></div>
+            <button class="btn-view-all" onclick="openHistory()">📋 查看全部历史记录</button>
+            <div style="text-align:center;margin-top:8px;">
+                <button style="background:none;border:none;color:#4caf50;font-size:12px;cursor:pointer;text-decoration:underline;" onclick="toggleRanking()" id="toggleRankBtn">📈 查看累计畅销排行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出弹窗 -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal" style="max-width:360px;">
+            <div class="modal-header">
+                <span class="modal-title">📥 导出Excel</span>
+                <button class="btn-close" onclick="closeExportModal()">✕</button>
+            </div>
+            <div class="export-modal-content">
+                <p style="color:#999;margin-bottom:10px;">选择导出范围</p>
+                <button class="export-option" onclick="doExport('today')">📅 仅今日</button>
+                <button class="export-option" onclick="doExport('week')">📆 最近7天</button>
+                <button class="export-option" onclick="doExport('all')">📚 全部历史</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史记录弹窗 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">📊 全部历史记录</span>
+                <button class="btn-close" onclick="closeHistory()">✕</button>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-mini"><div class="value" id="modalTotalOrders">0</div><div class="label">总订单</div></div>
+                <div class="stat-mini"><div class="value" id="modalTotalSales">¥0</div><div class="label">累计销售</div></div>
+                <div class="stat-mini"><div class="value" id="modalAvgOrder">¥0</div><div class="label">平均每单</div></div>
+            </div>
+            <div class="section-title">🏆 累计畅销排行</div>
+            <div id="modalRanking" style="margin-bottom:15px;"></div>
+            <div id="historyList"></div>
+            <button class="btn-delete-all" onclick="deleteAllHistory()">🗑️ 清空全部历史记录</button>
+        </div>
+    </div>
+
+    <script>
+        const menu = {
+            jiucaihezi: { name: '韭菜盒子', price: 3.00, emoji: '🥟', unit: '片', category: '煎烙面食' },
+            qiezihezi: { name: '茄子盒子', price: 3.00, emoji: '🍆', unit: '片', category: '煎烙面食' },
+            conghuabing: { name: '葱花饼', price: 3.00, emoji: '🫓', unit: '片', category: '煎烙面食' },
+            youbingyoutiao: { name: '油饼/油条', price: 1.00, emoji: '🥖', unit: '个', category: '煎烙面食' },
+            roubao: { name: '肉包', price: 2.00, emoji: '🥟', unit: '个', category: '包子' },
+            jiucaibao: { name: '韭菜包', price: 1.50, emoji: '🥟', unit: '个', category: '包子' },
+            qiezibao: { name: '茄子包', price: 1.50, emoji: '🥟', unit: '个', category: '包子' },
+            nanguabao: { name: '南瓜包', price: 1.50, emoji: '🥟', unit: '个', category: '包子' },
+            shuizhudan: { name: '水煮蛋', price: 1.50, emoji: '🥚', unit: '个', category: '蛋类' },
+            chayedan: { name: '茶叶蛋', price: 1.50, emoji: '🥚', unit: '个', category: '蛋类' },
+            babaozhou: { name: '八宝粥', price: 3.00, emoji: '🥣', unit: '碗', category: '粥汤' },
+            zicaitang: { name: '紫菜汤', price: 3.00, emoji: '🍲', unit: '碗', category: '粥汤' },
+            huidoufu: { name: '烩豆腐', price: 3.00, emoji: '🫘', unit: '碗', category: '粥汤' },
+            doufunao: { name: '豆腐脑', price: 3.00, emoji: '🥣', unit: '碗', category: '粥汤' },
+            bantang: { name: '拌汤', price: 3.00, emoji: '🍲', unit: '碗', category: '粥汤' },
+            heimizhou: { name: '黑米粥', price: 2.00, emoji: '🥣', unit: '碗', category: '粥汤' },
+            mitang: { name: '米汤', price: 2.00, emoji: '🥣', unit: '碗', category: '粥汤' },
+            youcha: { name: '油茶', price: 2.00, emoji: '🍵', unit: '碗', category: '粥汤' }
+        };
+
+        let currentTable = 1;
+        let showCumulativeRanking = false; // 右侧面板是否显示累计排行
+
+        let carts = {};
+        for (let t = 1; t <= 4; t++) {
+            carts[t] = {};
+            for (let key in menu) {
+                carts[t][key] = 0;
+            }
+        }
+
+        function selectTable(tableNum) {
+            currentTable = tableNum;
+            for (let i = 1; i <= 4; i++) document.getElementById('tableBtn' + i).classList.remove('active');
+            document.getElementById('tableBtn' + tableNum).classList.add('active');
+            document.getElementById('currentTableDisplay').innerHTML = '📍 当前：🪑 ' + tableNum + '号桌';
+            for (let key in menu) updateDisplay(key);
+            updateTotal();
+        }
+
+        function changeQuantity(item, delta) {
+            let cart = carts[currentTable];
+            let newQty = cart[item] + delta;
+            if (newQty < 0) newQty = 0;
+            if (newQty > 99) newQty = 99;
+            cart[item] = newQty;
+            updateDisplay(item);
+            updateTotal();
+        }
+
+        function updateDisplay(item) {
+            let cart = carts[currentTable];
+            let el = document.getElementById('qty-' + item);
+            let subEl = document.getElementById('sub-' + item);
+            if (!el || !subEl) return;
+            el.textContent = cart[item];
+            subEl.textContent = '¥' + (cart[item] * menu[item].price).toFixed(2);
+            el.classList.add('animate');
+            setTimeout(() => el.classList.remove('animate'), 300);
+        }
+
+        function updateTotal() {
+            let cart = carts[currentTable];
+            let total = 0,
+                totalItems = 0;
+            for (let key in cart) { total += cart[key] * menu[key].price;
+                totalItems += cart[key]; }
+            document.getElementById('totalPrice').textContent = '¥' + total.toFixed(2);
+            document.getElementById('itemsCount').textContent = totalItems;
+        }
+
+        function clearCart() {
+            if (confirm('确定清空 ' + currentTable + '号桌？')) {
+                let cart = carts[currentTable];
+                for (let key in cart) { cart[key] = 0;
+                    updateDisplay(key); }
+                updateTotal();
+            }
+        }
+
+        // 存储（改回v2，恢复旧数据）
+        function getHistory() {
+            let data = localStorage.getItem('breakfast_history_v2');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveHistory(h) { localStorage.setItem('breakfast_history_v2', JSON.stringify(h)); }
+
+        function addHistory(tableNum, orderData) {
+            let h = getHistory();
+            h.unshift({ id: Date.now(), date: new Date().toLocaleString('zh-CN'), table: tableNum, items: orderData.items,
+                total: orderData.total });
+            if (h.length > 500) h = h.slice(0, 500);
+            saveHistory(h);
+            refreshSidePanel();
+        }
+
+        function checkout() {
+            let cart = carts[currentTable];
+            let totalItems = 0,
+                orderItems = [],
+                total = 0;
+            let details = '📋 订单明细（🪑 ' + currentTable + '号桌）：\n\n';
+            for (let key in cart) {
+                if (cart[key] > 0) {
+                    let sub = cart[key] * menu[key].price;
+                    details += `${menu[key].emoji} ${menu[key].name} ×${cart[key]}${menu[key].unit}  ——  ¥${sub.toFixed(2)}\n`;
+                    orderItems.push({ key, name: menu[key].name, emoji: menu[key].emoji, qty: cart[key], unit: menu[key]
+                            .unit, price: menu[key].price, subtotal: sub });
+                    total += sub;
+                    totalItems += cart[key];
+                }
+            }
+            if (totalItems === 0) { alert('请先选择餐点～'); return; }
+            details += `\n——————————————\n💰 合计：¥${total.toFixed(2)}\n📦 共 ${totalItems} 件`;
+            if (confirm(details + '\n\n✅ 确认下单？')) {
+                addHistory(currentTable, { items: orderItems, total });
+                alert('🎉 ' + currentTable + '号桌 下单成功！');
+                for (let key in cart) { cart[key] = 0;
+                    updateDisplay(key); }
+                updateTotal();
+            }
+        }
+
+        // 导出
+        function openExportModal() { document.getElementById('exportModal').classList.add('active'); }
+
+        function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
+
+        function doExport(range) {
+            let history = getHistory();
+            if (history.length === 0) { alert('暂无数据'); return; }
+            let filtered = history;
+            let label = '全部';
+            let now = new Date();
+            if (range === 'today') {
+                let todayStr = now.toLocaleDateString('zh-CN');
+                filtered = history.filter(h => h.date.includes(todayStr));
+                label = '今日';
+            } else if (range === 'week') {
+                let weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('zh-CN');
+                filtered = history.filter(h => {
+                    let d = h.date.split(' ')[0];
+                    return d >= weekAgo;
+                });
+                label = '7天';
+            }
+            if (filtered.length === 0) { alert('该范围无数据'); return; }
+            let csv = '\uFEFF序号,日期时间,桌号,商品名称,数量,单价,小计,订单总金额\n';
+            let idx = 1;
+            filtered.forEach(o => {
+                o.items.forEach(i => {
+                    csv +=
+                        `${idx},"${o.date}",${o.table}号桌,"${i.name}",${i.qty},${i.price.toFixed(2)},${i.subtotal.toFixed(2)},${o.total.toFixed(2)}\n`;
+                    idx++;
+                });
+            });
+            let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `早餐订单_${label}_${now.toLocaleDateString('zh-CN').replace(/\//g,'-')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            closeExportModal();
+            alert('✅ 已导出「' + label + '」数据！');
+        }
+
+        // 生成排行HTML
+        function buildRankingHTML(data, maxShow = 5) {
+            if (data.length === 0) return '<div style="text-align:center;color:#ccc;padding:15px;">📭 暂无数据</div>';
+            let max = data[0][1];
+            return data.slice(0, maxShow).map((item, i) => {
+                let cls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+                return `<div class="ranking-item">
+                    <div class="ranking-badge ${cls}">${i+1}</div>
+                    <span class="ranking-name">${item[0]}</span>
+                    <div class="ranking-bar-bg"><div class="ranking-bar-fill" style="width:${(item[1]/max*100).toFixed(0)}%"></div></div>
+                    <span class="ranking-count">${item[1]}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // 统计商品次数
+        function countItems(orders) {
+            let counts = {};
+            orders.forEach(o => o.items.forEach(i => {
+                if (!counts[i.name]) counts[i.name] = 0;
+                counts[i.name] += i.qty;
+            }));
+            return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        }
+
+        function refreshSidePanel() {
+            let history = getHistory();
+            let todayStr = new Date().toLocaleDateString('zh-CN');
+            let todayOrders = history.filter(h => h.date.includes(todayStr));
+            let todayTotal = 0;
+            todayOrders.forEach(h => todayTotal += h.total);
+            let todayAvg = todayOrders.length > 0 ? (todayTotal / todayOrders.length) : 0;
+
+            document.getElementById('todaySales').textContent = '¥' + todayTotal.toFixed(2);
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+            document.getElementById('todayAvg').textContent = '¥' + todayAvg.toFixed(0);
+
+            // 排行显示
+            let rankData = showCumulativeRanking ? countItems(history) : countItems(todayOrders);
+            document.getElementById('rankingContainer').innerHTML = buildRankingHTML(rankData, 5);
+            document.getElementById('rankLabel').textContent = showCumulativeRanking ? '累计' : '今日';
+            document.getElementById('toggleRankBtn').textContent = showCumulativeRanking ? '📅 查看今日畅销排行' :
+                '📈 查看累计畅销排行';
+
+            // 各桌今日
+            let ts = { 1: 0, 2: 0, 3: 0, 4: 0 },
+                tc = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            todayOrders.forEach(o => { if (ts[o.table] !== undefined) { ts[o.table] += o.total;
+                    tc[o.table]++; } });
+            let th = '';
+            for (let t = 1; t <= 4; t++) th +=
+                `<div class="table-stat-row">🪑 ${t}号桌 <span>¥${ts[t].toFixed(2)}</span>（${tc[t]}单）</div>`;
+            document.getElementById('todayTableStats').innerHTML = th;
+        }
+
+        function toggleRanking() {
+            showCumulativeRanking = !showCumulativeRanking;
+            refreshSidePanel();
+        }
+
+        function openHistory() {
+            let history = getHistory();
+            let total = history.length;
+            let sales = 0;
+            history.forEach(h => sales += h.total);
+            let avg = total > 0 ? (sales / total) : 0;
+            document.getElementById('modalTotalOrders').textContent = total;
+            document.getElementById('modalTotalSales').textContent = '¥' + sales.toFixed(2);
+            document.getElementById('modalAvgOrder').textContent = '¥' + avg.toFixed(2);
+            document.getElementById('modalRanking').innerHTML = buildRankingHTML(countItems(history), 10);
+
+            let list = history.slice(0, 50);
+            document.getElementById('historyList').innerHTML = list.length === 0 ?
+                '<div class="empty-history">📭 暂无记录</div>' :
+                list.map(h => {
+                    let itemsHtml = h.items.map(i =>
+                        `${i.emoji} ${i.name} ×${i.qty}${i.unit||''}（¥${i.subtotal.toFixed(2)}）`).join('<br>');
+                    return `<div class="history-item">
+                        <div class="history-date"><span class="history-table-badge">🪑 ${h.table||'?'}号桌</span> 🕐 ${h.date}</div>
+                        <div class="history-details">${itemsHtml}</div>
+                        <div class="history-total">💰 ¥${h.total.toFixed(2)}</div>
+                    </div>`;
+                }).join('');
+            document.getElementById('historyModal').classList.add('active');
+        }
+
+        function closeHistory() { document.getElementById('historyModal').classList.remove('active'); }
+
+        function deleteAllHistory() {
+            if (confirm('⚠️ 清空全部历史？不可恢复！')) {
+                localStorage.removeItem('breakfast_history_v2');
+                closeHistory();
+                refreshSidePanel();
+                alert('✅ 已清空');
+            }
+        }
+
+        document.getElementById('historyModal').addEventListener('click', function(e) { if (e.target === this)
+            closeHistory(); });
+        document.getElementById('exportModal').addEventListener('click', function(e) { if (e.target === this)
+            closeExportModal(); });
+
+        for (let key in menu) updateDisplay(key);
+        updateTotal();
+        refreshSidePanel();
+    </script>
+</body>
+</html>
