@@ -133,9 +133,8 @@ h1{font-size:26px;color:#333}
 
 <script>
 // ⚠️ 改成你的真实值
-const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
-const SUPABASE_ANON_KEY =
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
+const SUPABASE_URL = '{{SUPABASE_URL}}';
+const SUPABASE_ANON_KEY='{{SUPABASE_ANON_KEY}}';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 const menu={jiucaihezi:{n:'韭菜盒子',p:3,e:'🥟',u:'片'},qiezihezi:{n:'茄子盒子',p:3,e:'🍆',u:'片'},conghuabing:{n:'葱花饼',p:3,e:'🫓',u:'片'},youbing:{n:'油饼',p:1,e:'🫓',u:'个'},youtiao:{n:'油条',p:1,e:'🥖',u:'个'},roubao:{n:'肉包',p:2,e:'🥟',u:'个'},jiucaibao:{n:'韭菜包',p:1.5,e:'🥟',u:'个'},qiezibao:{n:'茄子包',p:1.5,e:'🥟',u:'个'},nanguabao:{n:'南瓜包',p:1.5,e:'🥟',u:'个'},shuizhudan:{n:'水煮蛋',p:1.5,e:'🥚',u:'个'},chayedan:{n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},babaozhou:{n:'八宝粥',p:3,e:'🥣',u:'碗'},zicaitang:{n:'紫菜汤',p:3,e:'🍲',u:'碗'},huidoufu:{n:'烩豆腐',p:3,e:'🫘',u:'碗'},doufunao:{n:'豆腐脑',p:3,e:'🥣',u:'碗'},bantang:{n:'拌汤',p:3,e:'🍲',u:'碗'},heimizhou:{n:'黑米粥',p:2,e:'🥣',u:'碗'},mitang:{n:'米汤',p:2,e:'🥣',u:'碗'},youcha:{n:'油茶',p:2,e:'🍵',u:'碗'}};
