@@ -24,7 +24,7 @@
         .main-wrapper {
             display: flex;
             gap: 20px;
-            max-width: 960px;
+            max-width: 1000px;
             width: 100%;
             flex-wrap: wrap;
             justify-content: center;
@@ -36,7 +36,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 25px;
-            max-width: 500px;
+            max-width: 520px;
             width: 100%;
             position: relative;
             overflow: hidden;
@@ -359,6 +359,7 @@
             margin-left: 6px;
         }
 
+        /* 右侧面板 */
         .panel-title {
             font-size: 18px;
             font-weight: bold;
@@ -420,29 +421,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .section-title .tab-btns {
-            display: flex;
-            gap: 4px;
-            margin-left: auto;
-        }
-
-        .tab-btn {
-            padding: 3px 10px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            background: #f5f5f5;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #999;
-        }
-
-        .tab-btn.active {
-            background: #f57c00;
-            color: white;
-            border-color: #f57c00;
         }
 
         .ranking-item {
@@ -546,6 +524,7 @@
             border-color: #f57c00;
         }
 
+        /* 弹窗 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -568,7 +547,7 @@
             background: white;
             border-radius: 20px;
             padding: 25px;
-            max-width: 550px;
+            max-width: 580px;
             width: 100%;
             max-height: 80vh;
             overflow-y: auto;
@@ -615,6 +594,7 @@
             padding: 12px;
             margin-bottom: 10px;
             border-left: 4px solid #f57c00;
+            position: relative;
         }
 
         .history-table-badge {
@@ -638,6 +618,7 @@
             font-size: 13px;
             color: #555;
             line-height: 1.7;
+            padding-right: 30px;
         }
 
         .history-total {
@@ -646,6 +627,29 @@
             color: #f57c00;
             margin-top: 6px;
             text-align: right;
+        }
+
+        .btn-delete-order {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #fff;
+            color: #ff5252;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delete-order:hover {
+            background: #ff5252;
+            color: white;
         }
 
         .empty-history {
@@ -725,7 +729,7 @@
             }
             .side-panel {
                 position: static;
-                max-width: 500px;
+                max-width: 520px;
             }
         }
 
@@ -751,9 +755,6 @@
                 padding: 8px 4px;
                 font-size: 13px;
             }
-            .table-btn .icon {
-                font-size: 18px;
-            }
         }
     </style>
 </head>
@@ -765,203 +766,125 @@
                 <h1>🌅 早餐点餐</h1>
                 <div class="header-buttons">
                     <button class="btn-export" onclick="openExportModal()">📥 导出</button>
-                    <button class="btn-history" onclick="openHistory()">📋 全部记录</button>
+                    <button class="btn-history" onclick="openHistory()">📋 记录</button>
                 </div>
             </div>
 
             <p class="subtitle">👇 选择桌号（每桌独立下单）</p>
             <div class="table-selection">
-                <div class="table-btn active" onclick="selectTable(1)" id="tableBtn1">
-                    <span class="icon">🪑</span>1号桌
-                </div>
-                <div class="table-btn" onclick="selectTable(2)" id="tableBtn2">
-                    <span class="icon">🪑</span>2号桌
-                </div>
-                <div class="table-btn" onclick="selectTable(3)" id="tableBtn3">
-                    <span class="icon">🪑</span>3号桌
-                </div>
-                <div class="table-btn" onclick="selectTable(4)" id="tableBtn4">
-                    <span class="icon">🪑</span>4号桌
-                </div>
+                <div class="table-btn active" onclick="selectTable(1)" id="tableBtn1"><span class="icon">🪑</span>1号桌</div>
+                <div class="table-btn" onclick="selectTable(2)" id="tableBtn2"><span class="icon">🪑</span>2号桌</div>
+                <div class="table-btn" onclick="selectTable(3)" id="tableBtn3"><span class="icon">🪑</span>3号桌</div>
+                <div class="table-btn" onclick="selectTable(4)" id="tableBtn4"><span class="icon">🪑</span>4号桌</div>
             </div>
             <div class="current-table" id="currentTableDisplay">📍 当前：🪑 1号桌</div>
 
             <div class="menu-category">🫓 煎烙面食类</div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">韭菜盒子</div><div class="item-price">¥3.00/片</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('jiucaihezi', -1)">−</div>
-                    <div class="quantity" id="qty-jiucaihezi">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('jiucaihezi', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('jiucaihezi',-1)">−</div><div class="quantity" id="qty-jiucaihezi">0</div><div class="btn-plus" onclick="changeQuantity('jiucaihezi',1)">+</div></div>
                 <div class="subtotal" id="sub-jiucaihezi">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">茄子盒子</div><div class="item-price">¥3.00/片</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('qiezihezi', -1)">−</div>
-                    <div class="quantity" id="qty-qiezihezi">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('qiezihezi', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('qiezihezi',-1)">−</div><div class="quantity" id="qty-qiezihezi">0</div><div class="btn-plus" onclick="changeQuantity('qiezihezi',1)">+</div></div>
                 <div class="subtotal" id="sub-qiezihezi">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">葱花饼</div><div class="item-price">¥3.00/片</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('conghuabing', -1)">−</div>
-                    <div class="quantity" id="qty-conghuabing">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('conghuabing', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('conghuabing',-1)">−</div><div class="quantity" id="qty-conghuabing">0</div><div class="btn-plus" onclick="changeQuantity('conghuabing',1)">+</div></div>
                 <div class="subtotal" id="sub-conghuabing">¥0</div>
             </div>
             <div class="menu-item">
-                <div class="item-info"><div class="item-name">油饼 / 油条</div><div class="item-price">¥1.00/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('youbingyoutiao', -1)">−</div>
-                    <div class="quantity" id="qty-youbingyoutiao">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('youbingyoutiao', 1)">+</div>
-                </div>
-                <div class="subtotal" id="sub-youbingyoutiao">¥0</div>
+                <div class="item-info"><div class="item-name">油饼</div><div class="item-price">¥1.00/个</div></div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('youbing',-1)">−</div><div class="quantity" id="qty-youbing">0</div><div class="btn-plus" onclick="changeQuantity('youbing',1)">+</div></div>
+                <div class="subtotal" id="sub-youbing">¥0</div>
+            </div>
+            <div class="menu-item">
+                <div class="item-info"><div class="item-name">油条</div><div class="item-price">¥1.00/个</div></div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('youtiao',-1)">−</div><div class="quantity" id="qty-youtiao">0</div><div class="btn-plus" onclick="changeQuantity('youtiao',1)">+</div></div>
+                <div class="subtotal" id="sub-youtiao">¥0</div>
             </div>
 
             <div class="menu-category">🥟 包子类</div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">肉包</div><div class="item-price">¥2.00/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('roubao', -1)">−</div>
-                    <div class="quantity" id="qty-roubao">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('roubao', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('roubao',-1)">−</div><div class="quantity" id="qty-roubao">0</div><div class="btn-plus" onclick="changeQuantity('roubao',1)">+</div></div>
                 <div class="subtotal" id="sub-roubao">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">韭菜包</div><div class="item-price">¥1.50/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('jiucaibao', -1)">−</div>
-                    <div class="quantity" id="qty-jiucaibao">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('jiucaibao', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('jiucaibao',-1)">−</div><div class="quantity" id="qty-jiucaibao">0</div><div class="btn-plus" onclick="changeQuantity('jiucaibao',1)">+</div></div>
                 <div class="subtotal" id="sub-jiucaibao">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">茄子包</div><div class="item-price">¥1.50/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('qiezibao', -1)">−</div>
-                    <div class="quantity" id="qty-qiezibao">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('qiezibao', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('qiezibao',-1)">−</div><div class="quantity" id="qty-qiezibao">0</div><div class="btn-plus" onclick="changeQuantity('qiezibao',1)">+</div></div>
                 <div class="subtotal" id="sub-qiezibao">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">南瓜包</div><div class="item-price">¥1.50/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('nanguabao', -1)">−</div>
-                    <div class="quantity" id="qty-nanguabao">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('nanguabao', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('nanguabao',-1)">−</div><div class="quantity" id="qty-nanguabao">0</div><div class="btn-plus" onclick="changeQuantity('nanguabao',1)">+</div></div>
                 <div class="subtotal" id="sub-nanguabao">¥0</div>
             </div>
 
             <div class="menu-category">🥚 蛋类</div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">水煮蛋</div><div class="item-price">¥1.50/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('shuizhudan', -1)">−</div>
-                    <div class="quantity" id="qty-shuizhudan">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('shuizhudan', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('shuizhudan',-1)">−</div><div class="quantity" id="qty-shuizhudan">0</div><div class="btn-plus" onclick="changeQuantity('shuizhudan',1)">+</div></div>
                 <div class="subtotal" id="sub-shuizhudan">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">茶叶蛋</div><div class="item-price">¥1.50/个</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('chayedan', -1)">−</div>
-                    <div class="quantity" id="qty-chayedan">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('chayedan', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('chayedan',-1)">−</div><div class="quantity" id="qty-chayedan">0</div><div class="btn-plus" onclick="changeQuantity('chayedan',1)">+</div></div>
                 <div class="subtotal" id="sub-chayedan">¥0</div>
             </div>
 
             <div class="menu-category">🥣 粥汤类</div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">八宝粥</div><div class="item-price">¥3.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('babaozhou', -1)">−</div>
-                    <div class="quantity" id="qty-babaozhou">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('babaozhou', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('babaozhou',-1)">−</div><div class="quantity" id="qty-babaozhou">0</div><div class="btn-plus" onclick="changeQuantity('babaozhou',1)">+</div></div>
                 <div class="subtotal" id="sub-babaozhou">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">紫菜汤</div><div class="item-price">¥3.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('zicaitang', -1)">−</div>
-                    <div class="quantity" id="qty-zicaitang">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('zicaitang', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('zicaitang',-1)">−</div><div class="quantity" id="qty-zicaitang">0</div><div class="btn-plus" onclick="changeQuantity('zicaitang',1)">+</div></div>
                 <div class="subtotal" id="sub-zicaitang">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">烩豆腐</div><div class="item-price">¥3.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('huidoufu', -1)">−</div>
-                    <div class="quantity" id="qty-huidoufu">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('huidoufu', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('huidoufu',-1)">−</div><div class="quantity" id="qty-huidoufu">0</div><div class="btn-plus" onclick="changeQuantity('huidoufu',1)">+</div></div>
                 <div class="subtotal" id="sub-huidoufu">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">豆腐脑</div><div class="item-price">¥3.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('doufunao', -1)">−</div>
-                    <div class="quantity" id="qty-doufunao">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('doufunao', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('doufunao',-1)">−</div><div class="quantity" id="qty-doufunao">0</div><div class="btn-plus" onclick="changeQuantity('doufunao',1)">+</div></div>
                 <div class="subtotal" id="sub-doufunao">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">拌汤</div><div class="item-price">¥3.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('bantang', -1)">−</div>
-                    <div class="quantity" id="qty-bantang">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('bantang', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('bantang',-1)">−</div><div class="quantity" id="qty-bantang">0</div><div class="btn-plus" onclick="changeQuantity('bantang',1)">+</div></div>
                 <div class="subtotal" id="sub-bantang">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">黑米粥</div><div class="item-price">¥2.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('heimizhou', -1)">−</div>
-                    <div class="quantity" id="qty-heimizhou">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('heimizhou', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('heimizhou',-1)">−</div><div class="quantity" id="qty-heimizhou">0</div><div class="btn-plus" onclick="changeQuantity('heimizhou',1)">+</div></div>
                 <div class="subtotal" id="sub-heimizhou">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">米汤</div><div class="item-price">¥2.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('mitang', -1)">−</div>
-                    <div class="quantity" id="qty-mitang">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('mitang', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('mitang',-1)">−</div><div class="quantity" id="qty-mitang">0</div><div class="btn-plus" onclick="changeQuantity('mitang',1)">+</div></div>
                 <div class="subtotal" id="sub-mitang">¥0</div>
             </div>
             <div class="menu-item">
                 <div class="item-info"><div class="item-name">油茶</div><div class="item-price">¥2.00/碗</div></div>
-                <div class="quantity-control">
-                    <div class="btn-minus" onclick="changeQuantity('youcha', -1)">−</div>
-                    <div class="quantity" id="qty-youcha">0</div>
-                    <div class="btn-plus" onclick="changeQuantity('youcha', 1)">+</div>
-                </div>
+                <div class="quantity-control"><div class="btn-minus" onclick="changeQuantity('youcha',-1)">−</div><div class="quantity" id="qty-youcha">0</div><div class="btn-plus" onclick="changeQuantity('youcha',1)">+</div></div>
                 <div class="subtotal" id="sub-youcha">¥0</div>
             </div>
 
             <div class="divider"></div>
             <div class="total-section">
-                <div class="total-row">
-                    <span class="total-label">💰 合计</span>
-                    <span class="total-price" id="totalPrice">¥0.00</span>
-                </div>
+                <div class="total-row"><span class="total-label">💰 合计</span><span class="total-price" id="totalPrice">¥0.00</span></div>
             </div>
             <div class="btn-group">
                 <button class="btn-clear" onclick="clearCart()">🗑️ 清空</button>
@@ -972,10 +895,7 @@
         <!-- 右侧面板 -->
         <div class="side-panel">
             <div class="panel-title">📊 数据概览</div>
-            <div class="stat-card">
-                <div class="value" id="todaySales">¥0.00</div>
-                <div class="label">💰 今日销售额</div>
-            </div>
+            <div class="stat-card"><div class="value" id="todaySales">¥0.00</div><div class="label">💰 今日销售额</div></div>
             <div class="stat-row">
                 <div class="stat-mini"><div class="value" id="todayOrders">0</div><div class="label">📋 今日订单</div></div>
                 <div class="stat-mini"><div class="value" id="todayAvg">¥0</div><div class="label">📊 今日桌均</div></div>
@@ -994,10 +914,7 @@
     <!-- 导出弹窗 -->
     <div class="modal-overlay" id="exportModal">
         <div class="modal" style="max-width:360px;">
-            <div class="modal-header">
-                <span class="modal-title">📥 导出Excel</span>
-                <button class="btn-close" onclick="closeExportModal()">✕</button>
-            </div>
+            <div class="modal-header"><span class="modal-title">📥 导出Excel</span><button class="btn-close" onclick="closeExportModal()">✕</button></div>
             <div class="export-modal-content">
                 <p style="color:#999;margin-bottom:10px;">选择导出范围</p>
                 <button class="export-option" onclick="doExport('today')">📅 仅今日</button>
@@ -1010,10 +927,7 @@
     <!-- 历史记录弹窗 -->
     <div class="modal-overlay" id="historyModal">
         <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title">📊 全部历史记录</span>
-                <button class="btn-close" onclick="closeHistory()">✕</button>
-            </div>
+            <div class="modal-header"><span class="modal-title">📊 全部历史记录</span><button class="btn-close" onclick="closeHistory()">✕</button></div>
             <div class="stats-bar">
                 <div class="stat-mini"><div class="value" id="modalTotalOrders">0</div><div class="label">总订单</div></div>
                 <div class="stat-mini"><div class="value" id="modalTotalSales">¥0</div><div class="label">累计销售</div></div>
@@ -1027,11 +941,13 @@
     </div>
 
     <script>
+        // 菜单（油饼油条已分开）
         const menu = {
             jiucaihezi: { name: '韭菜盒子', price: 3.00, emoji: '🥟', unit: '片', category: '煎烙面食' },
             qiezihezi: { name: '茄子盒子', price: 3.00, emoji: '🍆', unit: '片', category: '煎烙面食' },
             conghuabing: { name: '葱花饼', price: 3.00, emoji: '🫓', unit: '片', category: '煎烙面食' },
-            youbingyoutiao: { name: '油饼/油条', price: 1.00, emoji: '🥖', unit: '个', category: '煎烙面食' },
+            youbing: { name: '油饼', price: 1.00, emoji: '🫓', unit: '个', category: '煎烙面食' },
+            youtiao: { name: '油条', price: 1.00, emoji: '🥖', unit: '个', category: '煎烙面食' },
             roubao: { name: '肉包', price: 2.00, emoji: '🥟', unit: '个', category: '包子' },
             jiucaibao: { name: '韭菜包', price: 1.50, emoji: '🥟', unit: '个', category: '包子' },
             qiezibao: { name: '茄子包', price: 1.50, emoji: '🥟', unit: '个', category: '包子' },
@@ -1049,110 +965,120 @@
         };
 
         let currentTable = 1;
-        let showCumulativeRanking = false; // 右侧面板是否显示累计排行
+        let showCumulativeRanking = false;
 
         let carts = {};
         for (let t = 1; t <= 4; t++) {
             carts[t] = {};
-            for (let key in menu) {
-                carts[t][key] = 0;
-            }
+            for (let key in menu) carts[t][key] = 0;
         }
 
-        function selectTable(tableNum) {
-            currentTable = tableNum;
+        // ============ 桌号 ============
+        function selectTable(t) {
+            currentTable = t;
             for (let i = 1; i <= 4; i++) document.getElementById('tableBtn' + i).classList.remove('active');
-            document.getElementById('tableBtn' + tableNum).classList.add('active');
-            document.getElementById('currentTableDisplay').innerHTML = '📍 当前：🪑 ' + tableNum + '号桌';
+            document.getElementById('tableBtn' + t).classList.add('active');
+            document.getElementById('currentTableDisplay').innerHTML = '📍 当前：🪑 ' + t + '号桌';
             for (let key in menu) updateDisplay(key);
             updateTotal();
         }
 
         function changeQuantity(item, delta) {
-            let cart = carts[currentTable];
-            let newQty = cart[item] + delta;
-            if (newQty < 0) newQty = 0;
-            if (newQty > 99) newQty = 99;
-            cart[item] = newQty;
+            let c = carts[currentTable];
+            let n = c[item] + delta;
+            if (n < 0) n = 0;
+            if (n > 99) n = 99;
+            c[item] = n;
             updateDisplay(item);
             updateTotal();
         }
 
         function updateDisplay(item) {
-            let cart = carts[currentTable];
+            let c = carts[currentTable];
             let el = document.getElementById('qty-' + item);
-            let subEl = document.getElementById('sub-' + item);
-            if (!el || !subEl) return;
-            el.textContent = cart[item];
-            subEl.textContent = '¥' + (cart[item] * menu[item].price).toFixed(2);
+            let se = document.getElementById('sub-' + item);
+            if (!el || !se) return;
+            el.textContent = c[item];
+            se.textContent = '¥' + (c[item] * menu[item].price).toFixed(2);
             el.classList.add('animate');
             setTimeout(() => el.classList.remove('animate'), 300);
         }
 
         function updateTotal() {
-            let cart = carts[currentTable];
-            let total = 0,
-                totalItems = 0;
-            for (let key in cart) { total += cart[key] * menu[key].price;
-                totalItems += cart[key]; }
-            document.getElementById('totalPrice').textContent = '¥' + total.toFixed(2);
-            document.getElementById('itemsCount').textContent = totalItems;
+            let c = carts[currentTable];
+            let t = 0,
+                ti = 0;
+            for (let k in c) { t += c[k] * menu[k].price;
+                ti += c[k]; }
+            document.getElementById('totalPrice').textContent = '¥' + t.toFixed(2);
+            document.getElementById('itemsCount').textContent = ti;
         }
 
         function clearCart() {
             if (confirm('确定清空 ' + currentTable + '号桌？')) {
-                let cart = carts[currentTable];
-                for (let key in cart) { cart[key] = 0;
-                    updateDisplay(key); }
+                let c = carts[currentTable];
+                for (let k in c) { c[k] = 0;
+                    updateDisplay(k); }
                 updateTotal();
             }
         }
 
-        // 存储（改回v2，恢复旧数据）
+        // ============ 存储 ============
         function getHistory() {
-            let data = localStorage.getItem('breakfast_history_v2');
-            return data ? JSON.parse(data) : [];
+            let d = localStorage.getItem('breakfast_history_v2');
+            return d ? JSON.parse(d) : [];
         }
 
         function saveHistory(h) { localStorage.setItem('breakfast_history_v2', JSON.stringify(h)); }
 
-        function addHistory(tableNum, orderData) {
+        function addHistory(tn, od) {
             let h = getHistory();
-            h.unshift({ id: Date.now(), date: new Date().toLocaleString('zh-CN'), table: tableNum, items: orderData.items,
-                total: orderData.total });
+            h.unshift({ id: Date.now(), date: new Date().toLocaleString('zh-CN'), table: tn, items: od.items, total: od
+                    .total });
             if (h.length > 500) h = h.slice(0, 500);
             saveHistory(h);
             refreshSidePanel();
         }
 
+        // 🗑️ 删除单笔订单
+        function deleteOrder(orderId) {
+            if (!confirm('确定删除这笔订单吗？将从汇总中移除。')) return;
+            let h = getHistory();
+            h = h.filter(o => o.id !== orderId);
+            saveHistory(h);
+            refreshSidePanel();
+            openHistory(); // 刷新弹窗
+        }
+
         function checkout() {
-            let cart = carts[currentTable];
-            let totalItems = 0,
-                orderItems = [],
-                total = 0;
+            let c = carts[currentTable];
+            let ti = 0,
+                oi = [],
+                t = 0;
             let details = '📋 订单明细（🪑 ' + currentTable + '号桌）：\n\n';
-            for (let key in cart) {
-                if (cart[key] > 0) {
-                    let sub = cart[key] * menu[key].price;
-                    details += `${menu[key].emoji} ${menu[key].name} ×${cart[key]}${menu[key].unit}  ——  ¥${sub.toFixed(2)}\n`;
-                    orderItems.push({ key, name: menu[key].name, emoji: menu[key].emoji, qty: cart[key], unit: menu[key]
-                            .unit, price: menu[key].price, subtotal: sub });
-                    total += sub;
-                    totalItems += cart[key];
+            for (let k in c) {
+                if (c[k] > 0) {
+                    let s = c[k] * menu[k].price;
+                    details +=
+                        `${menu[k].emoji} ${menu[k].name} ×${c[k]}${menu[k].unit}  ——  ¥${s.toFixed(2)}\n`;
+                    oi.push({ key: k, name: menu[k].name, emoji: menu[k].emoji, qty: c[k], unit: menu[k].unit,
+                        price: menu[k].price, subtotal: s });
+                    t += s;
+                    ti += c[k];
                 }
             }
-            if (totalItems === 0) { alert('请先选择餐点～'); return; }
-            details += `\n——————————————\n💰 合计：¥${total.toFixed(2)}\n📦 共 ${totalItems} 件`;
+            if (ti === 0) { alert('请先选择餐点～'); return; }
+            details += `\n——————————————\n💰 合计：¥${t.toFixed(2)}\n📦 共 ${ti} 件`;
             if (confirm(details + '\n\n✅ 确认下单？')) {
-                addHistory(currentTable, { items: orderItems, total });
+                addHistory(currentTable, { items: oi, total: t });
                 alert('🎉 ' + currentTable + '号桌 下单成功！');
-                for (let key in cart) { cart[key] = 0;
-                    updateDisplay(key); }
+                for (let k in c) { c[k] = 0;
+                    updateDisplay(k); }
                 updateTotal();
             }
         }
 
-        // 导出
+        // ============ 导出 ============
         function openExportModal() { document.getElementById('exportModal').classList.add('active'); }
 
         function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
@@ -1160,31 +1086,24 @@
         function doExport(range) {
             let history = getHistory();
             if (history.length === 0) { alert('暂无数据'); return; }
-            let filtered = history;
-            let label = '全部';
-            let now = new Date();
+            let filtered = history,
+                label = '全部',
+                now = new Date();
             if (range === 'today') {
-                let todayStr = now.toLocaleDateString('zh-CN');
-                filtered = history.filter(h => h.date.includes(todayStr));
+                let ts = now.toLocaleDateString('zh-CN');
+                filtered = history.filter(h => h.date.includes(ts));
                 label = '今日';
             } else if (range === 'week') {
-                let weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('zh-CN');
-                filtered = history.filter(h => {
-                    let d = h.date.split(' ')[0];
-                    return d >= weekAgo;
-                });
+                let wa = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('zh-CN');
+                filtered = history.filter(h => { let d = h.date.split(' ')[0]; return d >= wa; });
                 label = '7天';
             }
             if (filtered.length === 0) { alert('该范围无数据'); return; }
             let csv = '\uFEFF序号,日期时间,桌号,商品名称,数量,单价,小计,订单总金额\n';
             let idx = 1;
-            filtered.forEach(o => {
-                o.items.forEach(i => {
-                    csv +=
-                        `${idx},"${o.date}",${o.table}号桌,"${i.name}",${i.qty},${i.price.toFixed(2)},${i.subtotal.toFixed(2)},${o.total.toFixed(2)}\n`;
-                    idx++;
-                });
-            });
+            filtered.forEach(o => o.items.forEach(i => { csv +=
+                    `${idx},"${o.date}",${o.table}号桌,"${i.name}",${i.qty},${i.price.toFixed(2)},${i.subtotal.toFixed(2)},${o.total.toFixed(2)}\n`;
+                idx++; }));
             let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
@@ -1198,7 +1117,7 @@
             alert('✅ 已导出「' + label + '」数据！');
         }
 
-        // 生成排行HTML
+        // ============ 排行 ============
         function buildRankingHTML(data, maxShow = 5) {
             if (data.length === 0) return '<div style="text-align:center;color:#ccc;padding:15px;">📭 暂无数据</div>';
             let max = data[0][1];
@@ -1213,13 +1132,10 @@
             }).join('');
         }
 
-        // 统计商品次数
         function countItems(orders) {
             let counts = {};
-            orders.forEach(o => o.items.forEach(i => {
-                if (!counts[i.name]) counts[i.name] = 0;
-                counts[i.name] += i.qty;
-            }));
+            orders.forEach(o => o.items.forEach(i => { if (!counts[i.name]) counts[i.name] = 0;
+                counts[i.name] += i.qty; }));
             return Object.entries(counts).sort((a, b) => b[1] - a[1]);
         }
 
@@ -1230,19 +1146,16 @@
             let todayTotal = 0;
             todayOrders.forEach(h => todayTotal += h.total);
             let todayAvg = todayOrders.length > 0 ? (todayTotal / todayOrders.length) : 0;
-
             document.getElementById('todaySales').textContent = '¥' + todayTotal.toFixed(2);
             document.getElementById('todayOrders').textContent = todayOrders.length;
             document.getElementById('todayAvg').textContent = '¥' + todayAvg.toFixed(0);
 
-            // 排行显示
             let rankData = showCumulativeRanking ? countItems(history) : countItems(todayOrders);
             document.getElementById('rankingContainer').innerHTML = buildRankingHTML(rankData, 5);
             document.getElementById('rankLabel').textContent = showCumulativeRanking ? '累计' : '今日';
             document.getElementById('toggleRankBtn').textContent = showCumulativeRanking ? '📅 查看今日畅销排行' :
                 '📈 查看累计畅销排行';
 
-            // 各桌今日
             let ts = { 1: 0, 2: 0, 3: 0, 4: 0 },
                 tc = { 1: 0, 2: 0, 3: 0, 4: 0 };
             todayOrders.forEach(o => { if (ts[o.table] !== undefined) { ts[o.table] += o.total;
@@ -1253,15 +1166,14 @@
             document.getElementById('todayTableStats').innerHTML = th;
         }
 
-        function toggleRanking() {
-            showCumulativeRanking = !showCumulativeRanking;
-            refreshSidePanel();
-        }
+        function toggleRanking() { showCumulativeRanking = !showCumulativeRanking;
+            refreshSidePanel(); }
 
+        // ============ 历史弹窗 ============
         function openHistory() {
             let history = getHistory();
-            let total = history.length;
-            let sales = 0;
+            let total = history.length,
+                sales = 0;
             history.forEach(h => sales += h.total);
             let avg = total > 0 ? (sales / total) : 0;
             document.getElementById('modalTotalOrders').textContent = total;
@@ -1276,6 +1188,7 @@
                     let itemsHtml = h.items.map(i =>
                         `${i.emoji} ${i.name} ×${i.qty}${i.unit||''}（¥${i.subtotal.toFixed(2)}）`).join('<br>');
                     return `<div class="history-item">
+                        <button class="btn-delete-order" onclick="deleteOrder(${h.id})" title="删除此订单">🗑️</button>
                         <div class="history-date"><span class="history-table-badge">🪑 ${h.table||'?'}号桌</span> 🕐 ${h.date}</div>
                         <div class="history-details">${itemsHtml}</div>
                         <div class="history-total">💰 ¥${h.total.toFixed(2)}</div>
@@ -1300,6 +1213,7 @@
         document.getElementById('exportModal').addEventListener('click', function(e) { if (e.target === this)
             closeExportModal(); });
 
+        // 初始化
         for (let key in menu) updateDisplay(key);
         updateTotal();
         refreshSidePanel();
