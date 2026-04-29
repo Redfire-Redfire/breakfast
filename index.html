@@ -140,19 +140,61 @@ function cq(id,d){let n=cart[cur][id]+d;if(n<0)n=0;if(n>99)n=99;cart[cur][id]=n;
 function ut(){let t=0;M.forEach(m=>t+=cart[cur][m.id]*m.p);document.getElementById('tp').textContent='¥'+t.toFixed(2);}
 function clearCart(){if(!confirm('清空'+cur+'号桌？'))return;M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});ut();}
 
+// ===== 下单（手机友好版）=====
 async function checkout(){
-    let items=[],t=0,c=0,d='📋 '+cur+'号桌：\n\n';
-    M.forEach(m=>{let q=cart[cur][m.id];if(q>0){let s=q*m.p;d+=m.e+' '+m.n+' ×'+q+m.u+' = ¥'+s.toFixed(2)+'\n';items.push({name:m.n,emoji:m.e,qty:q,unit:m.u,price:m.p,subtotal:s});t+=s;c+=q;}});
+    let items=[],t=0,c=0,detail='';
+    M.forEach(m=>{
+        let q=cart[cur][m.id];
+        if(q>0){
+            let s=q*m.p;
+            detail+=m.e+' '+m.n+' ×'+q+' = ¥'+s.toFixed(2)+'\n';
+            items.push({name:m.n,emoji:m.e,qty:q,unit:m.u,price:m.p,subtotal:s});
+            t+=s;c+=q;
+        }
+    });
     if(c===0){alert('请先选餐');return;}
-    d+='\n————————\n💰 合计：¥'+t.toFixed(2)+'\n📦 共'+c+'件';
-    if(!confirm(d))return;
+    detail+='\n💰 合计：¥'+t.toFixed(2)+'（'+c+'件）';
+    
+    // 用自定义弹窗代替 confirm
+    let ok=await new Promise(resolve=>{
+        let div=document.createElement('div');
+        div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
+        div.innerHTML='<div style="background:#fff;border-radius:16px;padding:20px;max-width:320px;width:100%;text-align:center"><div style="font-size:15px;margin-bottom:12px;white-space:pre-line;text-align:left">📋 '+cur+'号桌：\n\n'+detail+'</div><button id="cfmOk" style="width:100%;padding:12px;background:#f57c00;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:6px">✅ 确认下单</button><button id="cfmCancel" style="width:100%;padding:10px;background:#fff;border:1px solid:#ddd;border-radius:10px;color:#999;font-size:14px">取消</button></div>';
+        document.body.appendChild(div);
+        document.getElementById('cfmOk').onclick=()=>{div.remove();resolve(true);};
+        document.getElementById('cfmCancel').onclick=()=>{div.remove();resolve(false);};
+    });
+    if(!ok)return;
+    
     await sb.from('orders').insert({table_num:cur,items:items,total:t});
     alert('下单成功！');
     M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});
     ut();ld();
 }
 
-function toggleAdmin(){if(isAdmin){isAdmin=false;cache=[];document.getElementById('badge').textContent='';document.getElementById('btnA').textContent='🔐 管理员';document.getElementById('panel').innerHTML='<p style="text-align:center;color:#999;padding:30px;font-size:12px">🔐 点「管理员」输入密码<br>查看数据</p>';return;}let p=prompt('请输入管理密码：');if(p===ADMIN_PW){isAdmin=true;document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';document.getElementById('btnA').textContent='🔓 退出';ld();}else if(p)alert('密码错误');}
+
+
+// ===== 管理员登录 =====
+function toggleAdmin(){
+    if(isAdmin){
+        isAdmin=false;cache=[];
+        document.getElementById('badge').textContent='';
+        document.getElementById('btnA').textContent='🔐 管理员';
+        document.getElementById('panel').innerHTML='<p style="text-align:center;color:#999;padding:30px;font-size:12px">🔐 点「管理员」输入密码<br>查看数据</p>';
+        return;
+    }
+    let p=prompt('请输入管理密码：');
+    if(p===ADMIN_PW){
+        isAdmin=true;
+        document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';
+        document.getElementById('btnA').textContent='🔓 退出';
+        ld();
+    }else if(p!==null){
+        alert('密码错误');
+    }
+}
+
+
 
 async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];}if(isAdmin)rp();}
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
