@@ -2,263 +2,175 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🥣 早餐点餐系统</title>
+<title>🥣 早餐点餐</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#fef7e9;min-height:100vh;padding:12px;display:flex;justify-content:center}
-.app{max-width:900px;width:100%;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 20px rgba(0,0,0,.06);width:100%}
-.left{flex:1;min-width:340px;max-width:500px}
-.right{width:320px;position:sticky;top:12px;align-self:flex-start}
-h2{font-size:20px;margin-bottom:10px}
-.btn{display:inline-block;padding:6px 14px;border-radius:20px;border:2px solid #f57c00;background:#fff;color:#f57c00;font-weight:700;font-size:12px;cursor:pointer;margin:2px;transition:.2s}
+.app{max-width:880px;width:100%;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 6px 16px rgba(0,0,0,.05)}
+.left{flex:1;min-width:330px;max-width:480px}
+.right{width:310px;position:sticky;top:12px;align-self:flex-start}
+h2{font-size:20px;margin-bottom:6px}
+.btns{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.btn{padding:5px 12px;border-radius:16px;border:2px solid #f57c00;background:#fff;color:#f57c00;font-weight:700;font-size:11px;cursor:pointer}
 .btn:hover{background:#f57c00;color:#fff}
-.btn.grn{border-color:#388e3c;color:#388e3c}
-.btn.grn:hover{background:#388e3c;color:#fff}
-.btn.org{border-color:#e65100;color:#e65100}
-.btn.org:hover{background:#e65100;color:#fff}
+.btn.g{border-color:#388e3c;color:#388e3c}
+.btn.g:hover{background:#388e3c;color:#fff}
 .badge{background:#e65100;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px}
-.tables{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin:8px 0}
-.tb{padding:10px 2px;border:3px solid #eee;border-radius:12px;text-align:center;font-weight:700;cursor:pointer;font-size:13px;color:#999;transition:.2s}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin:8px 0}
+.tb{padding:8px 2px;border:3px solid #eee;border-radius:10px;text-align:center;font-weight:700;cursor:pointer;font-size:12px;color:#999}
 .tb:hover{border-color:#f57c00;color:#f57c00}
-.tb.sel{border-color:#f57c00;background:#fff3e0;color:#f57c00}
-.tb span{display:block;font-size:18px}
-.ct{text-align:center;font-size:12px;color:#f57c00;font-weight:700;background:#fff3e0;padding:4px;border-radius:10px;margin-bottom:8px}
-.cat{font-size:14px;font-weight:700;color:#e65100;margin:12px 0 4px;border-bottom:2px dashed #ffe0b2;padding-bottom:2px}
-.row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;gap:6px}
-.row .info{flex:1}
-.row .name{font-size:13px;font-weight:500}
-.row .price{font-size:10px;color:#999}
-.qwrap{display:flex;align-items:center;gap:4px}
-.bq{width:24px;height:24px;border-radius:50%;border:2px solid #f57c00;background:#fff;color:#f57c00;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.tb.on{border-color:#f57c00;background:#fff3e0;color:#f57c00}
+.tb span{display:block;font-size:17px}
+.ct{text-align:center;font-size:11px;color:#f57c00;font-weight:700;background:#fff3e0;padding:3px;border-radius:8px;margin-bottom:6px}
+.cat{font-size:13px;font-weight:700;color:#e65100;margin:10px 0 3px;border-bottom:1px dashed #ffe0b2;padding-bottom:2px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:4px;flex-wrap:wrap}
+.row .info{flex:1;min-width:80px}
+.row .n{font-size:13px;font-weight:500}
+.row .p{font-size:10px;color:#999}
+.qw{display:flex;align-items:center;gap:3px}
+.bq{width:23px;height:23px;border-radius:50%;border:2px solid #f57c00;background:#fff;color:#f57c00;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .bq:hover{background:#f57c00;color:#fff}
-.qty{font-size:14px;font-weight:700;min-width:16px;text-align:center}
-.subt{font-size:12px;color:#f57c00;font-weight:700;min-width:36px;text-align:right}
-.total-box{background:#fff8f0;padding:12px;border-radius:12px;text-align:center;margin-top:10px}
-.total-box .tp{font-size:28px;color:#f57c00;font-weight:700}
-.btn-row{display:flex;gap:6px;margin-top:8px}
-.btn-buy{flex:1;padding:10px;background:#f57c00;border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
-.btn-clr{padding:10px 14px;background:0 0;border:1px solid #ddd;border-radius:12px;color:#999;font-size:13px;cursor:pointer}
-.stat-big{background:#e8f5e9;padding:12px;border-radius:12px;text-align:center;margin-bottom:8px}
-.stat-big .v{font-size:26px;color:#2e7d32;font-weight:700}
-.stat-big .l{font-size:11px;color:#666}
-.stat-row{display:flex;gap:6px;margin-bottom:8px}
-.stat-s{flex:1;background:#fafafa;padding:8px;border-radius:10px;text-align:center}
-.stat-s .v{font-size:15px;font-weight:700;color:#f57c00}
-.stat-s .l{font-size:10px;color:#999}
-.sec{font-size:13px;font-weight:700;margin:8px 0 4px}
-.rk{display:flex;align-items:center;gap:5px;padding:4px 6px;background:#fafafa;border-radius:6px;margin-bottom:3px;font-size:11px}
-.rk .rb{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700}
+.qt{font-size:13px;font-weight:700;min-width:14px;text-align:center}
+.sb{font-size:12px;color:#f57c00;font-weight:700;min-width:34px;text-align:right}
+.tb2{background:#fff8f0;padding:10px;border-radius:10px;text-align:center;margin-top:8px}
+.tp{font-size:26px;color:#f57c00;font-weight:700}
+.br{display:flex;gap:6px;margin-top:8px}
+.bb{flex:1;padding:10px;background:#f57c00;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.bc{padding:10px 14px;background:0 0;border:1px solid #ddd;border-radius:10px;color:#999;font-size:12px;cursor:pointer}
+.sb2{background:#e8f5e9;padding:10px;border-radius:10px;text-align:center;margin-bottom:8px}
+.sb2 .v{font-size:24px;color:#2e7d32;font-weight:700}
+.sb2 .l{font-size:10px;color:#666}
+.sr{display:flex;gap:6px;margin-bottom:8px}
+.ss{flex:1;background:#fafafa;padding:8px;border-radius:8px;text-align:center}
+.ss .v{font-size:14px;font-weight:700;color:#f57c00}
+.ss .l{font-size:10px;color:#999}
+.st{font-size:12px;font-weight:700;margin:8px 0 4px}
+.rk{display:flex;align-items:center;gap:4px;padding:3px 5px;background:#fafafa;border-radius:5px;margin-bottom:2px;font-size:10px}
+.rk .rb{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700}
 .g1{background:#ffd700}.g2{background:silver}.g3{background:#cd7f32}.g4{background:#ddd;color:#666}
 .rk .rn{flex:1}
-.rk .rbar{flex:1.2;height:4px;background:#eee;border-radius:2px;overflow:hidden}
+.rk .rbar{flex:1;height:3px;background:#eee;border-radius:2px;overflow:hidden}
 .rk .rf{height:100%;background:#f57c00;border-radius:2px}
-.ts{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px dashed #eee}
-.ts span{color:#f57c00;font-weight:700}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:99;justify-content:center;align-items:center;padding:12px}
-.modal.on{display:flex}
-.modal .box{background:#fff;border-radius:16px;padding:16px;max-width:480px;width:100%;max-height:78vh;overflow-y:auto}
-.modal .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #eee}
-.modal .head span{font-size:16px;font-weight:700}
-.modal .cx{width:26px;height:26px;border-radius:50%;border:none;background:#eee;cursor:pointer;font-size:14px}
-.hitem{background:#fafafa;padding:8px;border-radius:10px;margin-bottom:6px;border-left:4px solid #f57c00;position:relative}
-.htag{background:#f57c00;color:#fff;font-size:10px;padding:1px 6px;border-radius:6px;margin-right:4px}
-.hd{font-size:10px;color:#999;margin-bottom:3px}
-.hdet{font-size:11px;color:#555;line-height:1.5;padding-right:22px}
-.ht{font-size:13px;color:#f57c00;font-weight:700;text-align:right;margin-top:3px}
-.del{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:11px}
-.danger{width:100%;padding:8px;margin-top:6px;border:1px solid #ff5252;border-radius:8px;background:#fff;color:#ff5252;font-size:12px;cursor:pointer}
-.exp{display:block;width:100%;padding:10px;margin:4px 0;border:2px solid #388e3c;border-radius:10px;background:#fff;color:#388e3c;font-size:14px;font-weight:700;cursor:pointer}
-.exp:hover{background:#388e3c;color:#fff}
-@media(max-width:720px){.app{flex-direction:column;align-items:center}.right{position:static;width:100%;max-width:500px}}
+.tsr{display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px dashed #eee}
+.tsr span{color:#f57c00;font-weight:700}
+.hitem{background:#fafafa;padding:6px;border-radius:8px;margin-bottom:5px;border-left:3px solid #f57c00;position:relative}
+.htag{background:#f57c00;color:#fff;font-size:9px;padding:1px 5px;border-radius:5px;margin-right:3px}
+.hd{font-size:9px;color:#999;margin-bottom:2px}
+.hdet{font-size:10px;color:#555;line-height:1.4;padding-right:20px}
+.ht{font-size:12px;color:#f57c00;font-weight:700;text-align:right;margin-top:2px}
+.del{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:10px}
+.danger{width:100%;padding:7px;margin-top:5px;border:1px solid #ff5252;border-radius:7px;background:#fff;color:#ff5252;font-size:11px;cursor:pointer}
+@media(max-width:700px){.app{flex-direction:column;align-items:center}.right{position:static;width:100%;max-width:480px}}
 </style>
 </head>
 <body>
 <div class="app">
 <div class="card left">
-
-<h2>🌅 早餐点餐<span id="adminBadge"></span></h2>
-<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+<h2>🌅 早餐点餐<span id="badge"></span></h2>
+<div class="btns">
 <button class="btn" onclick="openHistory()">📋 记录</button>
-<button class="btn grn" onclick="openExport()">📥 导出</button>
-<button class="btn org" onclick="toggleAdmin()" id="btnAdmin">🔐 管理员</button>
+<button class="btn g" onclick="openExport()">📥 导出</button>
+<button class="btn" style="border-color:#e65100;color:#e65100" onclick="toggleAdmin()" id="btnA">🔐 管理员</button>
 </div>
-
-<p style="font-size:12px;color:#999;text-align:center;margin-bottom:6px">👇 选择桌号（云端同步）</p>
-<div class="tables">
-<div class="tb sel" onclick="selectTable(1)" id="tb1"><span>🪑</span>1号桌</div>
-<div class="tb" onclick="selectTable(2)" id="tb2"><span>🪑</span>2号桌</div>
-<div class="tb" onclick="selectTable(3)" id="tb3"><span>🪑</span>3号桌</div>
-<div class="tb" onclick="selectTable(4)" id="tb4"><span>🪑</span>4号桌</div>
+<p style="font-size:11px;color:#999;text-align:center;margin-bottom:4px">👇 选择桌号（云端同步）</p>
+<div class="tabs">
+<div class="tb on" onclick="st(1)" id="tb1"><span>🪑</span>1号桌</div>
+<div class="tb" onclick="st(2)" id="tb2"><span>🪑</span>2号桌</div>
+<div class="tb" onclick="st(3)" id="tb3"><span>🪑</span>3号桌</div>
+<div class="tb" onclick="st(4)" id="tb4"><span>🪑</span>4号桌</div>
 </div>
 <div class="ct" id="ct">📍 当前：🪑 1号桌</div>
-
-<div id="menuContainer"></div>
-
-<div class="total-box"><span>💰 合计 </span><span class="tp" id="tp">¥0.00</span></div>
-<div class="btn-row"><button class="btn-clr" onclick="clearCart()">🗑️ 清空</button><button class="btn-buy" onclick="checkout()">🛒 下单</button></div>
+<div id="menu"></div>
+<div class="tb2"><span>💰 合计 </span><span class="tp" id="tp">¥0.00</span></div>
+<div class="br"><button class="bc" onclick="clearCart()">🗑️ 清空</button><button class="bb" onclick="checkout()">🛒 下单</button></div>
 </div>
-
-<div class="card right" id="sidePanel">
-<p style="text-align:center;color:#999;padding:30px;font-size:13px">🔐 点右上角「管理员」<br>输入密码查看数据</p>
-</div>
+<div class="card right" id="panel"><p style="text-align:center;color:#999;padding:30px;font-size:12px">🔐 点「管理员」输入密码<br>查看数据</p></div>
 </div>
 
 <script>
-// ========== 配置 ==========
 const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
 const SUPABASE_ANON_KEY =
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';const ADMIN_PASSWORD='najiu888';
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
+const ADMIN_PW='najiu888';
 
-// ========== 菜单 ==========
-const menu=[
-{id:'jiucaihezi',cat:'🫓 煎烙面食类',name:'韭菜盒子',price:3,emoji:'🥟',unit:'片'},
-{id:'qiezihezi',cat:'🫓 煎烙面食类',name:'茄子盒子',price:3,emoji:'🍆',unit:'片'},
-{id:'conghuabing',cat:'🫓 煎烙面食类',name:'葱花饼',price:3,emoji:'🫓',unit:'片'},
-{id:'youbing',cat:'🫓 煎烙面食类',name:'油饼',price:1,emoji:'🫓',unit:'个'},
-{id:'youtiao',cat:'🫓 煎烙面食类',name:'油条',price:1,emoji:'🥖',unit:'个'},
-{id:'roubao',cat:'🥟 包子类',name:'肉包',price:2,emoji:'🥟',unit:'个'},
-{id:'jiucaibao',cat:'🥟 包子类',name:'韭菜包',price:1.5,emoji:'🥟',unit:'个'},
-{id:'qiezibao',cat:'🥟 包子类',name:'茄子包',price:1.5,emoji:'🥟',unit:'个'},
-{id:'nanguabao',cat:'🥟 包子类',name:'南瓜包',price:1.5,emoji:'🥟',unit:'个'},
-{id:'shuizhudan',cat:'🥚 蛋类',name:'水煮蛋',price:1.5,emoji:'🥚',unit:'个'},
-{id:'chayedan',cat:'🥚 蛋类',name:'茶叶蛋',price:1.5,emoji:'🥚',unit:'个'},
-{id:'babaozhou',cat:'🥣 粥汤类',name:'八宝粥',price:3,emoji:'🥣',unit:'碗'},
-{id:'zicaitang',cat:'🥣 粥汤类',name:'紫菜汤',price:3,emoji:'🍲',unit:'碗'},
-{id:'huidoufu',cat:'🥣 粥汤类',name:'烩豆腐',price:3,emoji:'🫘',unit:'碗'},
-{id:'doufunao',cat:'🥣 粥汤类',name:'豆腐脑',price:3,emoji:'🥣',unit:'碗'},
-{id:'bantang',cat:'🥣 粥汤类',name:'拌汤',price:3,emoji:'🍲',unit:'碗'},
-{id:'heimizhou',cat:'🥣 粥汤类',name:'黑米粥',price:2,emoji:'🥣',unit:'碗'},
-{id:'mitang',cat:'🥣 粥汤类',name:'米汤',price:2,emoji:'🥣',unit:'碗'},
-{id:'youcha',cat:'🥣 粥汤类',name:'油茶',price:2,emoji:'🍵',unit:'碗'}
+
+
+
+
+const M=[
+{id:'jc',cat:'🫓 煎烙面食类',n:'韭菜盒子',p:3,e:'🥟',u:'片'},
+{id:'qz',cat:'🫓 煎烙面食类',n:'茄子盒子',p:3,e:'🍆',u:'片'},
+{id:'ch',cat:'🫓 煎烙面食类',n:'葱花饼',p:3,e:'🫓',u:'片'},
+{id:'yb',cat:'🫓 煎烙面食类',n:'油饼',p:1,e:'🫓',u:'个'},
+{id:'yt',cat:'🫓 煎烙面食类',n:'油条',p:1,e:'🥖',u:'个'},
+{id:'rb',cat:'🥟 包子类',n:'肉包',p:2,e:'🥟',u:'个'},
+{id:'jcb',cat:'🥟 包子类',n:'韭菜包',p:1.5,e:'🥟',u:'个'},
+{id:'qzb',cat:'🥟 包子类',n:'茄子包',p:1.5,e:'🥟',u:'个'},
+{id:'ngb',cat:'🥟 包子类',n:'南瓜包',p:1.5,e:'🥟',u:'个'},
+{id:'szd',cat:'🥚 蛋类',n:'水煮蛋',p:1.5,e:'🥚',u:'个'},
+{id:'cyd',cat:'🥚 蛋类',n:'茶叶蛋',p:1.5,e:'🥚',u:'个'},
+{id:'bbz',cat:'🥣 粥汤类',n:'八宝粥',p:3,e:'🥣',u:'碗'},
+{id:'zct',cat:'🥣 粥汤类',n:'紫菜汤',p:3,e:'🍲',u:'碗'},
+{id:'hdf',cat:'🥣 粥汤类',n:'烩豆腐',p:3,e:'🫘',u:'碗'},
+{id:'dfn',cat:'🥣 粥汤类',n:'豆腐脑',p:3,e:'🥣',u:'碗'},
+{id:'bt',cat:'🥣 粥汤类',n:'拌汤',p:3,e:'🍲',u:'碗'},
+{id:'hmz',cat:'🥣 粥汤类',n:'黑米粥',p:2,e:'🥣',u:'碗'},
+{id:'mt',cat:'🥣 粥汤类',n:'米汤',p:2,e:'🥣',u:'碗'},
+{id:'yc',cat:'🥣 粥汤类',n:'油茶',p:2,e:'🍵',u:'碗'}
 ];
 
-// ========== 状态 ==========
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let isAdmin=false,curTable=1,cache=[];
-const cart={};
-for(let t=1;t<=4;t++){cart[t]={};menu.forEach(m=>cart[t][m.id]=0);}
+let isAdmin=false,cur=1,cache=[];
+const cart={};for(let t=1;t<=4;t++){cart[t]={};M.forEach(m=>cart[t][m.id]=0);}
 
-// ========== 渲染菜单 ==========
-function renderMenu(){
-    let html='',lastCat='';
-    menu.forEach(m=>{
-        if(m.cat!==lastCat){html+='<div class="cat">'+m.cat+'</div>';lastCat=m.cat;}
-        html+='<div class="row"><div class="info"><div class="name">'+m.name+'</div><div class="price">¥'+m.price.toFixed(2)+'/'+m.unit+'</div></div><div class="qwrap"><div class="bq" onclick="cq(\''+m.id+'\',-1)">−</div><div class="qty" id="q-'+m.id+'">0</div><div class="bq" onclick="cq(\''+m.id+'\',1)">+</div></div><div class="subt" id="s-'+m.id+'">¥0</div></div>';
+// 渲染菜单
+(function renderMenu(){
+    let h='',last='';
+    M.forEach(m=>{
+        if(m.cat!==last){h+='<div class="cat">'+m.cat+'</div>';last=m.cat;}
+        h+='<div class="row"><div class="info"><div class="n">'+m.n+'</div><div class="p">¥'+m.p.toFixed(2)+'/'+m.u+'</div></div><div class="qw"><div class="bq" onclick="cq(\''+m.id+'\',-1)">−</div><div class="qt" id="q-'+m.id+'">0</div><div class="bq" onclick="cq(\''+m.id+'\',1)">+</div></div><div class="sb" id="s-'+m.id+'">¥0</div></div>';
     });
-    document.getElementById('menuContainer').innerHTML=html;
-}
-renderMenu();
+    document.getElementById('menu').innerHTML=h;
+})();
 
-// ========== 购物车操作 ==========
-function selectTable(t){
-    curTable=t;
-    for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('sel');
-    document.getElementById('tb'+t).classList.add('sel');
-    document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';
-    menu.forEach(m=>{
-        document.getElementById('q-'+m.id).textContent=cart[t][m.id];
-        document.getElementById('s-'+m.id).textContent='¥'+(cart[t][m.id]*m.price).toFixed(2);
-    });
-    updateTotal();
-}
-function cq(id,d){
-    let n=cart[curTable][id]+d;
-    if(n<0)n=0;if(n>99)n=99;
-    cart[curTable][id]=n;
-    document.getElementById('q-'+id).textContent=n;
-    document.getElementById('s-'+id).textContent='¥'+(n*menu.find(m=>m.id===id).price).toFixed(2);
-    updateTotal();
-}
-function updateTotal(){
-    let t=0;menu.forEach(m=>t+=cart[curTable][m.id]*m.price);
-    document.getElementById('tp').textContent='¥'+t.toFixed(2);
-}
-function clearCart(){
-    if(!confirm('清空'+curTable+'号桌？'))return;
-    menu.forEach(m=>{cart[curTable][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});
-    updateTotal();
-}
+function st(t){cur=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('on');document.getElementById('tb'+t).classList.add('on');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';M.forEach(m=>{document.getElementById('q-'+m.id).textContent=cart[t][m.id];document.getElementById('s-'+m.id).textContent='¥'+(cart[t][m.id]*m.p).toFixed(2);});ut();}
+function cq(id,d){let n=cart[cur][id]+d;if(n<0)n=0;if(n>99)n=99;cart[cur][id]=n;document.getElementById('q-'+id).textContent=n;document.getElementById('s-'+id).textContent='¥'+(n*M.find(m=>m.id===id).p).toFixed(2);ut();}
+function ut(){let t=0;M.forEach(m=>t+=cart[cur][m.id]*m.p);document.getElementById('tp').textContent='¥'+t.toFixed(2);}
+function clearCart(){if(!confirm('清空'+cur+'号桌？'))return;M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});ut();}
 
-// ========== 下单 ==========
 async function checkout(){
-    let items=[],total=0,count=0,detail='📋 '+curTable+'号桌：\n\n';
-    menu.forEach(m=>{
-        let q=cart[curTable][m.id];
-        if(q>0){
-            let sub=q*m.price;
-            detail+=m.emoji+' '+m.name+' ×'+q+m.unit+' = ¥'+sub.toFixed(2)+'\n';
-            items.push({name:m.name,emoji:m.emoji,qty:q,unit:m.unit,price:m.price,subtotal:sub});
-            total+=sub;count+=q;
-        }
-    });
-    if(count===0){alert('请先选餐');return;}
-    detail+='\n————————\n💰 合计：¥'+total.toFixed(2)+'\n📦 共'+count+'件';
-    if(!confirm(detail))return;
-    let{error}=await sb.from('orders').insert({table_num:curTable,items:items,total:total});
-    if(error){alert('下单失败：'+error.message);return;}
+    let items=[],t=0,c=0,d='📋 '+cur+'号桌：\n\n';
+    M.forEach(m=>{let q=cart[cur][m.id];if(q>0){let s=q*m.p;d+=m.e+' '+m.n+' ×'+q+m.u+' = ¥'+s.toFixed(2)+'\n';items.push({name:m.n,emoji:m.e,qty:q,unit:m.u,price:m.p,subtotal:s});t+=s;c+=q;}});
+    if(c===0){alert('请先选餐');return;}
+    d+='\n————————\n💰 合计：¥'+t.toFixed(2)+'\n📦 共'+c+'件';
+    if(!confirm(d))return;
+    await sb.from('orders').insert({table_num:cur,items:items,total:t});
     alert('下单成功！');
-    menu.forEach(m=>{cart[curTable][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});
-    updateTotal();
-    if(isAdmin)loadOrders();
+    M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});
+    ut();ld();
 }
 
-// ========== 管理员 ==========
-function toggleAdmin(){
-    if(isAdmin){logout();return;}
-    let p=prompt('请输入管理密码：');
-    if(p===ADMIN_PASSWORD){isAdmin=true;document.getElementById('adminBadge').innerHTML='<span class="badge">管理员</span>';document.getElementById('btnAdmin').textContent='🔓 退出';loadOrders();}
-    else if(p)alert('密码错误');
-}
-function logout(){isAdmin=false;cache=[];document.getElementById('adminBadge').textContent='';document.getElementById('btnAdmin').textContent='🔐 管理员';document.getElementById('sidePanel').innerHTML='<p style="text-align:center;color:#999;padding:30px;font-size:13px">🔐 点右上角「管理员」<br>输入密码查看数据</p>';}
+function toggleAdmin(){if(isAdmin){isAdmin=false;cache=[];document.getElementById('badge').textContent='';document.getElementById('btnA').textContent='🔐 管理员';document.getElementById('panel').innerHTML='<p style="text-align:center;color:#999;padding:30px;font-size:12px">🔐 点「管理员」输入密码<br>查看数据</p>';return;}let p=prompt('请输入管理密码：');if(p===ADMIN_PW){isAdmin=true;document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';document.getElementById('btnA').textContent='🔓 退出';ld();}else if(p)alert('密码错误');}
 
-// ========== 云端 ==========
-async function loadOrders(){
-    if(!isAdmin)return;
-    let query = sb.from('orders').select('*').order('created_at',{ascending:false});
-    // 管理员带上密码头
-    query = query.setHeader('x-admin-key', ADMIN_PASSWORD);
-    let{data,error}= await query;
-    if(!error){cache=data||[];refreshPanel();}
-}
-
-
-
-
-
-
+async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];}if(isAdmin)rp();}
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
-function countItems(ods){let c={};ods.forEach(o=>o.items.forEach(i=>{if(!c[i.name])c[i.name]=0;c[i.name]+=i.qty;}));return Object.entries(c).sort((a,b)=>b[1]-a[1]);}
-function buildRank(data,max=5){
-    if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:10px;">暂无</div>';
-    let mx=data[0][1];
-    return data.slice(0,max).map((r,i)=>{
-        let cl=i===0?'g1':i===1?'g2':i===2?'g3':'g4';
-        return'<div class="rk"><div class="rb '+cl+'">'+(i+1)+'</div><span class="rn">'+r[0]+'</span><div class="rbar"><div class="rf" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span>'+r[1]+'</span></div>';
-    }).join('');
-}
-function refreshPanel(){
+function ci(ods){let c={};ods.forEach(o=>o.items.forEach(i=>{if(!c[i.name])c[i.name]=0;c[i.name]+=i.qty;}));return Object.entries(c).sort((a,b)=>b[1]-a[1]);}
+function br(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:10px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'g1':i===1?'g2':i===2?'g3':'g4';return'<div class="rk"><div class="rb '+cl+'">'+(i+1)+'</div><span class="rn">'+r[0]+'</span><div class="rbar"><div class="rf" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span>'+r[1]+'</span></div>';}).join('');}
+function rp(){
     if(!isAdmin)return;
-    let h=getHD(),ts=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(ts)),tt=0;
-    tod.forEach(o=>tt+=o.total);
-    let tb={1:0,2:0,3:0,4:0},tc={1:0,2:0,3:0,4:0};
-    tod.forEach(o=>{let tn=o.table;if(tb[tn]!==undefined){tb[tn]+=o.total;tc[tn]++;}});
-    let th='';for(let t=1;t<=4;t++)th+='<div class="ts">🪑 '+t+'号桌 <span>¥'+tb[t].toFixed(2)+'</span>（'+tc[t]+'单）</div>';
-    document.getElementById('sidePanel').innerHTML=
-    '<div class="stat-big"><div class="v">¥'+tt.toFixed(2)+'</div><div class="l">💰 今日销售额</div></div>'+
-    '<div class="stat-row"><div class="stat-s"><div class="v">'+tod.length+'</div><div class="l">📋 今日订单</div></div></div>'+
-    '<div class="sec">🏆 今日畅销排行</div>'+buildRank(countItems(tod),5)+
-    '<div class="sec" style="margin-top:8px">🪑 各桌今日</div>'+th+
-    '<button class="btn grn" style="width:100%;margin-top:8px" onclick="openHistory()">📋 全部记录</button>';
+    let h=getHD(),ts=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(ts)),tt=0;tod.forEach(o=>tt+=o.total);
+    let tb={1:0,2:0,3:0,4:0},tc={1:0,2:0,3:0,4:0};tod.forEach(o=>{let tn=o.table;if(tb[tn]!==undefined){tb[tn]+=o.total;tc[tn]++;}});
+    let th='';for(let t=1;t<=4;t++)th+='<div class="tsr">🪑 '+t+'号桌 <span>¥'+tb[t].toFixed(2)+'</span>（'+tc[t]+'单）</div>';
+    document.getElementById('panel').innerHTML='<div class="sb2"><div class="v">¥'+tt.toFixed(2)+'</div><div class="l">💰 今日销售额</div></div><div class="sr"><div class="ss"><div class="v">'+tod.length+'</div><div class="l">📋 今日订单</div></div></div><div class="st">🏆 今日畅销排行</div>'+br(ci(tod),5)+'<div class="st" style="margin-top:8px">🪑 各桌今日</div>'+th+'<button class="btn g" style="width:100%;margin-top:8px" onclick="openHistory()">📋 全部记录</button>';
 }
 
-// ========== 导出 ==========
 function openExport(){
-    if(!isAdmin)return alert('请先登录管理员');
-    showModal('📥 导出Excel','<button class="exp" onclick="doExport(\'today\');closeModal()">📅 仅今日</button><button class="exp" onclick="doExport(\'week\');closeModal()">📆 最近7天</button><button class="exp" onclick="doExport(\'all\');closeModal()">📚 全部历史</button>');
+    if(!isAdmin){alert('请先登录管理员');return;}
+    document.getElementById('panel').innerHTML='<div class="st">📥 导出Excel</div><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'today\')">📅 仅今日</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'week\')">📆 最近7天</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'all\')">📚 全部历史</button><button class="btn" style="width:100%;margin-top:6px" onclick="rp()">↩ 返回</button>';
 }
-function doExport(range){
+function de(range){
     let h=getHD(),f=h,label='全部',now=new Date();
     if(range==='today'){let ts=now.toLocaleDateString('zh-CN');f=h.filter(x=>x.date.includes(ts));label='今日';}
     else if(range==='week'){let wa=new Date(now.getTime()-7*24*60*60*1000).toLocaleDateString('zh-CN');f=h.filter(x=>x.date.split(' ')[0]>=wa);label='7天';}
@@ -270,59 +182,24 @@ function doExport(range){
     alert('✅ 已导出「'+label+'」数据！');
 }
 
-// ========== 弹窗 ==========
-function showModal(title,content){
-    closeModal();
-    let d=document.createElement('div');
-    d.id='mo';
-    d.className='modal on';
-    d.innerHTML='<div class="box"><div class="head"><span>'+title+'</span><button class="cx" id="btnCloseModal">✕</button></div>'+content+'</div>';
-    document.body.appendChild(d);
-    document.getElementById('btnCloseModal').onclick=closeModal;
-    d.onclick=function(e){if(e.target===d)closeModal();};
-}
-function closeModal(){let m=document.getElementById('mo');if(m)m.remove();}
-
-// ========== 历史记录 ==========
 function openHistory(){
-    if(!isAdmin)return alert('请先登录管理员');
+    if(!isAdmin){alert('请先登录管理员');return;}
     let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
-    let html='<div style="display:flex;gap:6px;margin-bottom:10px"><div class="stat-s"><div class="v">'+total+'</div><div class="l">总订单</div></div><div class="stat-s"><div class="v">¥'+sales.toFixed(2)+'</div><div class="l">累计销售</div></div></div>';
-    html+='<div class="sec">🏆 累计畅销排行</div>'+buildRank(countItems(h),10)+'<hr style="margin:10px 0">';
+    let html='<div style="display:flex;gap:6px;margin-bottom:10px"><div class="ss"><div class="v">'+total+'</div><div class="l">总订单</div></div><div class="ss"><div class="v">¥'+sales.toFixed(2)+'</div><div class="l">累计销售</div></div></div>';
+    html+='<div class="st">🏆 累计畅销排行</div>'+br(ci(h),10)+'<hr style="margin:8px 0">';
     html+=h.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':h.slice(0,50).map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="hitem"><button class="del" data-id="'+x.id+'">🗑️</button><div class="hd"><span class="htag">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="hdet">'+ih+'</div><div class="ht">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
-    html+='<button class="danger" id="btnDelAll">🗑️ 清空全部历史记录</button>';
-    showModal('📊 全部历史记录',html);
-    // 事件绑定
-    document.querySelectorAll('.del').forEach(btn=>{
-        btn.onclick=function(){del(parseInt(this.dataset.id));};
-    });
-    let bda=document.getElementById('btnDelAll');
-    if(bda)bda.onclick=delAll;
+    html+='<button class="danger" id="btnDelAll">🗑️ 清空全部</button>';
+    document.getElementById('panel').style.overflowY='auto';
+    document.getElementById('panel').style.maxHeight='70vh';
+    document.getElementById('panel').innerHTML='<div class="st">📊 全部记录</div>'+html+'<button class="btn" style="width:100%;margin-top:6px" onclick="rp()">↩ 返回首页</button>';
+    document.querySelectorAll('.del').forEach(b=>{b.onclick=function(){del(parseInt(this.dataset.id));};});
+    let ba=document.getElementById('btnDelAll');if(ba)ba.onclick=delAll;
 }
+async function del(id){if(!confirm('确定删除？'))return;await sb.from('orders').delete().eq('id',id);await ld();openHistory();}
+async function delAll(){if(!confirm('⚠️清空全部？不可恢复！'))return;await sb.from('orders').delete().gt('id',0);await ld();rp();alert('已清空');}
 
-async function del(id){
-    if(!confirm('确定删除？'))return;
-    await sb.from('orders').delete().eq('id',id);
-    await loadOrders();
-    closeModal();
-    openHistory();
-}
-async function delAll(){
-    if(!confirm('⚠️清空全部？不可恢复！'))return;
-    await sb.from('orders').delete().gt('id',0);
-    await loadOrders();
-    closeModal();
-    openHistory();
-    alert('已清空');
-}
-
-
-
-
-
-// ========== 初始化 ==========
-selectTable(1);
-setInterval(()=>{if(isAdmin)loadOrders();},30000);
+st(1);
+setInterval(()=>{ld();},30000);
 </script>
 </body>
 </html>
