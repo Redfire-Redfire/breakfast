@@ -151,7 +151,7 @@ function toggleAdmin(){
 
 async function loadOrders(){
     if(!isAdmin)return;
-    let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+    let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false}).setHeader('x-admin-key',ADMIN_PASSWORD);
     if(!error){cache=data||[];refreshSidePanel();}
 }
 
