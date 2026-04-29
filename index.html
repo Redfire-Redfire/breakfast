@@ -227,22 +227,19 @@ function openHistory(){
 
 async function del(id){
     if(!confirm('确定删除？'))return;
-    let {error} = await sb.from('orders').delete().eq('id',id)
-        .setHeader('x-admin-key', ADMIN_PASSWORD);
-    if(error){alert('删除失败');return;}
-    loadOrders();
-    document.querySelector('.modal-overlay')?.remove();
-    openHistory();
+    await sb.from('orders').delete().eq('id',id).setHeader('x-admin-key',ADMIN_PASSWORD);
+    loadOrders();document.querySelector('.modal-overlay')?.remove();openHistory();
 }
 async function delAll(){
     if(!confirm('⚠️清空全部？不可恢复！'))return;
-    let {error} = await sb.from('orders').delete().gt('id',0)
-        .setHeader('x-admin-key', ADMIN_PASSWORD);
-    if(error){alert('清空失败');return;}
-    loadOrders();
-    document.querySelector('.modal-overlay')?.remove();
-    alert('已清空');
+    await sb.from('orders').delete().gt('id',0).setHeader('x-admin-key',ADMIN_PASSWORD);
+    loadOrders();document.querySelector('.modal-overlay')?.remove();alert('已清空');
 }
+
+
+
+
+
 
 for(let k in menu)ud(k);ut();setInterval(()=>{if(isAdmin)loadOrders();},30000);
 </script>
