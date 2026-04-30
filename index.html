@@ -181,7 +181,31 @@ const cart={};for(let t=1;t<=4;t++){cart[t]={};M.forEach(m=>cart[t][m.id]=0);}
 function st(t){cur=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('on');document.getElementById('tb'+t).classList.add('on');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';M.forEach(m=>{document.getElementById('q-'+m.id).textContent=cart[t][m.id];document.getElementById('s-'+m.id).textContent='¥'+(cart[t][m.id]*m.p).toFixed(2);});ut();}
 function cq(id,d){let n=cart[cur][id]+d;if(n<0)n=0;if(n>99)n=99;cart[cur][id]=n;document.getElementById('q-'+id).textContent=n;document.getElementById('s-'+id).textContent='¥'+(n*M.find(m=>m.id===id).p).toFixed(2);ut();}
 function ut(){let t=0;M.forEach(m=>t+=cart[cur][m.id]*m.p);document.getElementById('tp').textContent='¥'+t.toFixed(2);}
-function clearCart(){if(!confirm('清空'+cur+'号桌？'))return;M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});ut();}
+function clearCart(){
+    showConfirm('清空'+cur+'号桌？','🗑️ 清空',false).then(ok=>{
+        if(!ok)return;
+        M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});
+        ut();
+    });
+}
+
+function toggleAdmin(){
+    if(isAdmin){
+        isAdmin=false;cache=[];
+        document.getElementById('badge').textContent='';
+        document.getElementById('btnA').textContent='🔐 管理员';
+        ld();return;
+    }
+    let p=prompt('请输入管理密码：');
+    if(p===ADMIN_PW){
+        isAdmin=true;
+        document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';
+        document.getElementById('btnA').textContent='🔓 退出';
+        ld();
+    }else if(p!==null){
+        showAlert('密码错误');
+    }
+}
 
 function showConfirm(msg,btnText,isDanger){return new Promise(resolve=>{let d=document.createElement('div');d.className='confirm-overlay';d.innerHTML='<div class="confirm-box"><div class="msg">'+msg+'</div><button id="cfmOk" class="confirm-btn '+(isDanger?'red':'org')+'">'+btnText+'</button><button id="cfmCancel" class="confirm-cancel">取消</button></div>';document.body.appendChild(d);document.getElementById('cfmOk').onclick=()=>{d.remove();resolve(true);};document.getElementById('cfmCancel').onclick=()=>{d.remove();resolve(false);};});}
 function showAlert(msg){return new Promise(resolve=>{let d=document.createElement('div');d.className='confirm-overlay';d.innerHTML='<div class="confirm-box"><div class="msg">'+msg+'</div><button id="alertOk" class="confirm-btn org">确定</button></div>';document.body.appendChild(d);document.getElementById('alertOk').onclick=()=>{d.remove();resolve();};});}
@@ -199,7 +223,26 @@ async function checkout(){
     ut();ld();
 }
 
-function toggleAdmin(){if(isAdmin){isAdmin=false;cache=[];document.getElementById('badge').textContent='';document.getElementById('btnA').textContent='🔐 管理员';ld();return;}let p=prompt('请输入管理密码：');if(p===ADMIN_PW){isAdmin=true;document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';document.getElementById('btnA').textContent='🔓 退出';ld();}else if(p!==null)alert('密码错误');}
+function toggleAdmin(){
+    if(isAdmin){
+        isAdmin=false;cache=[];
+        document.getElementById('badge').textContent='';
+        document.getElementById('btnA').textContent='🔐 管理员';
+        ld();return;
+    }
+    let p=prompt('请输入管理密码：');
+    if(p===ADMIN_PW){
+        isAdmin=true;
+        document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';
+        document.getElementById('btnA').textContent='🔓 退出';
+        ld();
+    }else if(p!==null){
+        showAlert('密码错误');
+    }
+}
+
+
+
 
 async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false}).setHeader('x-admin-key',ADMIN_PW);if(!error){cache=data||[];}rp();}
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
