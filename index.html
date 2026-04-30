@@ -222,14 +222,14 @@ function rp(){
 
 // ===== 导出 =====
 function openExport(){
-    if(!isAdmin){alert('请先登录管理员');return;}
+    if(!isAdmin){showAlert('请先登录管理员');return;}
     document.getElementById('panel').innerHTML='<div class="st">📥 导出Excel</div><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'today\')">📅 仅今日</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'week\')">📆 最近7天</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'all\')">📚 全部历史</button><button class="btn" style="width:100%;margin-top:6px" onclick="rp()">↩ 返回</button>';
 }
 function de(range){
     let h=getHD(),f=h,label='全部',now=new Date();
     if(range==='today'){let ts=now.toLocaleDateString('zh-CN');f=h.filter(x=>x.date.includes(ts));label='今日';}
     else if(range==='week'){let wa=new Date(now.getTime()-7*24*60*60*1000).toLocaleDateString('zh-CN');f=h.filter(x=>x.date.split(' ')[0]>=wa);label='7天';}
-    if(f.length===0){alert('无数据');return;}
+    if(f.length===0){showAlert('无数据');return;}
     let csv='\uFEFF序号,日期,桌号,商品,数量,单价,小计,订单总额\n',idx=1;
     f.forEach(o=>o.items.forEach(i=>{csv+=idx+',"'+o.date+'",'+o.table+'号桌,"'+i.name+'",'+i.qty+','+i.price.toFixed(2)+','+i.subtotal.toFixed(2)+','+o.total.toFixed(2)+'\n';idx++;}));
     let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),a=document.createElement('a');
@@ -251,7 +251,7 @@ function buildHistoryHTML(){
 }
 
 function openHistory(){
-    if(!isAdmin){alert('请先登录管理员');return;}
+    if(!isAdmin){showAlert('请先登录管理员');return;}
     closeHistory();
     let overlay=document.createElement('div');
     overlay.id='historyOverlay';
