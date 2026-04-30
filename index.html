@@ -25,7 +25,7 @@ h2{font-size:20px;margin-bottom:6px}
 .tb span{display:block;font-size:17px}
 .ct{text-align:center;font-size:11px;color:#f57c00;font-weight:700;background:#fff3e0;padding:3px;border-radius:8px;margin-bottom:6px}
 .cat{font-size:13px;font-weight:700;color:#e65100;margin:10px 0 3px;border-bottom:1px dashed #ffe0b2;padding-bottom:2px}
-.row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:4px;flex-wrap:wrap}
+.row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:4px}
 .row .info{flex:1;min-width:80px}
 .row .n{font-size:13px;font-weight:500}
 .row .p{font-size:10px;color:#999}
@@ -55,13 +55,27 @@ h2{font-size:20px;margin-bottom:6px}
 .rk .rf{height:100%;background:#f57c00;border-radius:2px}
 .tsr{display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px dashed #eee}
 .tsr span{color:#f57c00;font-weight:700}
+/* 弹窗 */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:998;display:flex;align-items:center;justify-content:center;padding:12px}
+.modal-box{background:#fff;border-radius:14px;padding:16px;max-width:480px;width:100%;max-height:78vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eee}
+.modal-head span{font-size:16px;font-weight:700}
+.modal-close{width:26px;height:26px;border-radius:50%;border:none;background:#eee;cursor:pointer;font-size:14px}
 .hitem{background:#fafafa;padding:6px;border-radius:8px;margin-bottom:5px;border-left:3px solid #f57c00;position:relative}
 .htag{background:#f57c00;color:#fff;font-size:9px;padding:1px 5px;border-radius:5px;margin-right:3px}
 .hd{font-size:9px;color:#999;margin-bottom:2px}
 .hdet{font-size:10px;color:#555;line-height:1.4;padding-right:20px}
 .ht{font-size:12px;color:#f57c00;font-weight:700;text-align:right;margin-top:2px}
-.del{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:10px}
+.del-btn{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:10px}
+.del-btn:hover{background:#ff5252;color:#fff}
 .danger{width:100%;padding:7px;margin-top:5px;border:1px solid #ff5252;border-radius:7px;background:#fff;color:#ff5252;font-size:11px;cursor:pointer}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.confirm-box{background:#fff;border-radius:16px;padding:20px;max-width:300px;width:100%;text-align:center}
+.confirm-box .msg{font-size:15px;margin-bottom:14px}
+.confirm-btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:6px}
+.confirm-btn.red{background:#ff5252;color:#fff}
+.confirm-btn.org{background:#f57c00;color:#fff}
+.confirm-cancel{width:100%;padding:10px;background:#fff;border:1px solid #ddd;border-radius:10px;color:#999;font-size:14px;cursor:pointer}
 @media(max-width:700px){.app{flex-direction:column;align-items:center}.right{position:static;width:100%;max-width:480px}}
 </style>
 </head>
@@ -90,15 +104,13 @@ h2{font-size:20px;margin-bottom:6px}
 </div>
 
 <script>
+// ===== 配置 =====
 const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
 const SUPABASE_ANON_KEY =
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
 const ADMIN_PW='najiu888';
 
-
-
-
-
+// ===== 菜单 =====
 const M=[
 {id:'jc',cat:'🫓 煎烙面食类',n:'韭菜盒子',p:3,e:'🥟',u:'片'},
 {id:'qz',cat:'🫓 煎烙面食类',n:'茄子盒子',p:3,e:'🍆',u:'片'},
@@ -121,12 +133,13 @@ const M=[
 {id:'yc',cat:'🥣 粥汤类',n:'油茶',p:2,e:'🍵',u:'碗'}
 ];
 
+// ===== 状态 =====
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let isAdmin=false,cur=1,cache=[];
 const cart={};for(let t=1;t<=4;t++){cart[t]={};M.forEach(m=>cart[t][m.id]=0);}
 
-// 渲染菜单
-(function renderMenu(){
+// ===== 渲染菜单 =====
+(function(){
     let h='',last='';
     M.forEach(m=>{
         if(m.cat!==last){h+='<div class="cat">'+m.cat+'</div>';last=m.cat;}
@@ -135,79 +148,79 @@ const cart={};for(let t=1;t<=4;t++){cart[t]={};M.forEach(m=>cart[t][m.id]=0);}
     document.getElementById('menu').innerHTML=h;
 })();
 
+// ===== 桌号 =====
 function st(t){cur=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('on');document.getElementById('tb'+t).classList.add('on');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';M.forEach(m=>{document.getElementById('q-'+m.id).textContent=cart[t][m.id];document.getElementById('s-'+m.id).textContent='¥'+(cart[t][m.id]*m.p).toFixed(2);});ut();}
 function cq(id,d){let n=cart[cur][id]+d;if(n<0)n=0;if(n>99)n=99;cart[cur][id]=n;document.getElementById('q-'+id).textContent=n;document.getElementById('s-'+id).textContent='¥'+(n*M.find(m=>m.id===id).p).toFixed(2);ut();}
 function ut(){let t=0;M.forEach(m=>t+=cart[cur][m.id]*m.p);document.getElementById('tp').textContent='¥'+t.toFixed(2);}
 function clearCart(){if(!confirm('清空'+cur+'号桌？'))return;M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});ut();}
 
-// ===== 下单（手机友好版）=====
+// ===== 自定义弹窗工具 =====
+function showConfirm(msg,btnText,btnClass,isDanger){
+    return new Promise(resolve=>{
+        let d=document.createElement('div');
+        d.className='confirm-overlay';
+        d.innerHTML='<div class="confirm-box"><div class="msg" style="white-space:pre-line;text-align:left">'+msg+'</div><button id="cfmOk" class="confirm-btn '+(isDanger?'red':'org')+'">'+btnText+'</button><button id="cfmCancel" class="confirm-cancel">取消</button></div>';
+        document.body.appendChild(d);
+        document.getElementById('cfmOk').onclick=()=>{d.remove();resolve(true);};
+        document.getElementById('cfmCancel').onclick=()=>{d.remove();resolve(false);};
+    });
+}
+function showAlert(msg){
+    return new Promise(resolve=>{
+        let d=document.createElement('div');
+        d.className='confirm-overlay';
+        d.innerHTML='<div class="confirm-box"><div class="msg" style="white-space:pre-line">'+msg+'</div><button id="alertOk" class="confirm-btn org">确定</button></div>';
+        document.body.appendChild(d);
+        document.getElementById('alertOk').onclick=()=>{d.remove();resolve();};
+    });
+}
+
+// ===== 下单 =====
 async function checkout(){
-    let items=[],t=0,c=0,detail='';
+   let items=[],t=0,c=0,detail='';
     M.forEach(m=>{
         let q=cart[cur][m.id];
         if(q>0){
             let s=q*m.p;
-            detail+=m.e+' '+m.n+' ×'+q+' = ¥'+s.toFixed(2)+'\n';
+            detail+=m.e+' '+m.n+' ×'+q+m.u+' = ¥'+s.toFixed(2)+'\n';
             items.push({name:m.n,emoji:m.e,qty:q,unit:m.u,price:m.p,subtotal:s});
             t+=s;c+=q;
         }
     });
-    if(c===0){alert('请先选餐');return;}
-    detail+='\n💰 合计：¥'+t.toFixed(2)+'（'+c+'件）';
-    
-    // 用自定义弹窗代替 confirm
-    let ok=await new Promise(resolve=>{
-        let div=document.createElement('div');
-        div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
-        div.innerHTML='<div style="background:#fff;border-radius:16px;padding:20px;max-width:320px;width:100%;text-align:center"><div style="font-size:15px;margin-bottom:12px;white-space:pre-line;text-align:left">📋 '+cur+'号桌：\n\n'+detail+'</div><button id="cfmOk" style="width:100%;padding:12px;background:#f57c00;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:6px">✅ 确认下单</button><button id="cfmCancel" style="width:100%;padding:10px;background:#fff;border:1px solid:#ddd;border-radius:10px;color:#999;font-size:14px">取消</button></div>';
-        document.body.appendChild(div);
-        document.getElementById('cfmOk').onclick=()=>{div.remove();resolve(true);};
-        document.getElementById('cfmCancel').onclick=()=>{div.remove();resolve(false);};
-    });
+    if(c===0){await showAlert('请先选餐');return;}
+    detail='📋 '+cur+'号桌订单：\n\n'+detail;
+    detail+='\n————————\n💰 合计：¥'+t.toFixed(2)+'\n📦 共'+c+'件';
+    let ok=await showConfirm(detail,'✅ 确认下单',false);
     if(!ok)return;
-    
     await sb.from('orders').insert({table_num:cur,items:items,total:t});
-    alert('下单成功！');
+    await showAlert('下单成功！');
     M.forEach(m=>{cart[cur][m.id]=0;document.getElementById('q-'+m.id).textContent='0';document.getElementById('s-'+m.id).textContent='¥0';});
     ut();ld();
 }
 
 
-
-// ===== 管理员登录 =====
+// ===== 管理员 =====
 function toggleAdmin(){
-    if(isAdmin){
-        isAdmin=false;cache=[];
-        document.getElementById('badge').textContent='';
-        document.getElementById('btnA').textContent='🔐 管理员';
-        document.getElementById('panel').innerHTML='<p style="text-align:center;color:#999;padding:30px;font-size:12px">🔐 点「管理员」输入密码<br>查看数据</p>';
-        return;
-    }
+    if(isAdmin){isAdmin=false;cache=[];document.getElementById('badge').textContent='';document.getElementById('btnA').textContent='🔐 管理员';document.getElementById('panel').innerHTML='<p style="text-align:center;color:#999;padding:30px;font-size:12px">🔐 点「管理员」输入密码<br>查看数据</p>';return;}
     let p=prompt('请输入管理密码：');
-    if(p===ADMIN_PW){
-        isAdmin=true;
-        document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';
-        document.getElementById('btnA').textContent='🔓 退出';
-        ld();
-    }else if(p!==null){
-        alert('密码错误');
-    }
+    if(p===ADMIN_PW){isAdmin=true;document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';document.getElementById('btnA').textContent='🔓 退出';ld();}
+    else if(p!==null)alert('密码错误');
 }
 
-
-
-async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];}if(isAdmin)rp();}
+// ===== 数据 =====
+async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];}rp();}
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
 function ci(ods){let c={};ods.forEach(o=>o.items.forEach(i=>{if(!c[i.name])c[i.name]=0;c[i.name]+=i.qty;}));return Object.entries(c).sort((a,b)=>b[1]-a[1]);}
-function br(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:10px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'g1':i===1?'g2':i===2?'g3':'g4';return'<div class="rk"><div class="rb '+cl+'">'+(i+1)+'</div><span class="rn">'+r[0]+'</span><div class="rbar"><div class="rf" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span>'+r[1]+'</span></div>';}).join('');}
+function brk(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:10px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'g1':i===1?'g2':i===2?'g3':'g4';return'<div class="rk"><div class="rb '+cl+'">'+(i+1)+'</div><span class="rn">'+r[0]+'</span><div class="rbar"><div class="rf" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span>'+r[1]+'</span></div>';}).join('');}
 function rp(){
     if(!isAdmin)return;
     let h=getHD(),ts=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(ts)),tt=0;tod.forEach(o=>tt+=o.total);
     let tb={1:0,2:0,3:0,4:0},tc={1:0,2:0,3:0,4:0};tod.forEach(o=>{let tn=o.table;if(tb[tn]!==undefined){tb[tn]+=o.total;tc[tn]++;}});
     let th='';for(let t=1;t<=4;t++)th+='<div class="tsr">🪑 '+t+'号桌 <span>¥'+tb[t].toFixed(2)+'</span>（'+tc[t]+'单）</div>';
-    document.getElementById('panel').innerHTML='<div class="sb2"><div class="v">¥'+tt.toFixed(2)+'</div><div class="l">💰 今日销售额</div></div><div class="sr"><div class="ss"><div class="v">'+tod.length+'</div><div class="l">📋 今日订单</div></div></div><div class="st">🏆 今日畅销排行</div>'+br(ci(tod),5)+'<div class="st" style="margin-top:8px">🪑 各桌今日</div>'+th+'<button class="btn g" style="width:100%;margin-top:8px" onclick="openHistory()">📋 全部记录</button>';
+    document.getElementById('panel').innerHTML='<div class="sb2"><div class="v">¥'+tt.toFixed(2)+'</div><div class="l">💰 今日销售额</div></div><div class="sr"><div class="ss"><div class="v">'+tod.length+'</div><div class="l">📋 今日订单</div></div></div><div class="st">🏆 今日畅销排行</div>'+brk(ci(tod),5)+'<div class="st" style="margin-top:8px">🪑 各桌今日</div>'+th+'<button class="btn g" style="width:100%;margin-top:8px" onclick="openHistory()">📋 全部记录</button>';
 }
 
+// ===== 导出 =====
 function openExport(){
     if(!isAdmin){alert('请先登录管理员');return;}
     document.getElementById('panel').innerHTML='<div class="st">📥 导出Excel</div><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'today\')">📅 仅今日</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'week\')">📆 最近7天</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#388e3c;color:#388e3c" onclick="de(\'all\')">📚 全部历史</button><button class="btn" style="width:100%;margin-top:6px" onclick="rp()">↩ 返回</button>';
@@ -224,22 +237,88 @@ function de(range){
     alert('✅ 已导出「'+label+'」数据！');
 }
 
+// ===== 历史记录弹窗 =====
+function buildHistoryHTML(){
+    let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
+    let list=h.slice(0,50);
+    let html='<div class="modal-head"><span>📊 全部历史记录</span><button class="modal-close" onclick="closeHistory()">✕</button></div>';
+    html+='<div style="display:flex;gap:6px;margin-bottom:10px" id="histStats"><div class="ss"><div class="v" id="histTotal">'+total+'</div><div class="l">总订单</div></div><div class="ss"><div class="v" id="histSales">¥'+sales.toFixed(2)+'</div><div class="l">累计销售</div></div></div>';
+    html+='<div class="st">🏆 累计畅销排行</div>'+brk(ci(h),10)+'<hr style="margin:8px 0">';
+    html+='<div id="histList">';
+    html+=list.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':list.map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="hitem" id="hitem-'+x.id+'"><button class="del-btn" data-id="'+x.id+'">🗑️</button><div class="hd"><span class="htag">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="hdet">'+ih+'</div><div class="ht">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
+    html+='</div><button class="danger" id="btnDelAll">🗑️ 清空全部</button>';
+    return html;
+}
+
 function openHistory(){
     if(!isAdmin){alert('请先登录管理员');return;}
-    let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
-    let html='<div style="display:flex;gap:6px;margin-bottom:10px"><div class="ss"><div class="v">'+total+'</div><div class="l">总订单</div></div><div class="ss"><div class="v">¥'+sales.toFixed(2)+'</div><div class="l">累计销售</div></div></div>';
-    html+='<div class="st">🏆 累计畅销排行</div>'+br(ci(h),10)+'<hr style="margin:8px 0">';
-    html+=h.length===0?'<div style="text-align:center;color:#ccc;">暂无记录</div>':h.slice(0,50).map(x=>{let ih=x.items.map(i=>i.emoji+' '+i.name+' ×'+i.qty+'（¥'+i.subtotal.toFixed(2)+'）').join('<br>');return'<div class="hitem"><button class="del" data-id="'+x.id+'">🗑️</button><div class="hd"><span class="htag">🪑 '+x.table+'号桌</span> '+x.date+'</div><div class="hdet">'+ih+'</div><div class="ht">💰 ¥'+x.total.toFixed(2)+'</div></div>';}).join('');
-    html+='<button class="danger" id="btnDelAll">🗑️ 清空全部</button>';
-    document.getElementById('panel').style.overflowY='auto';
-    document.getElementById('panel').style.maxHeight='70vh';
-    document.getElementById('panel').innerHTML='<div class="st">📊 全部记录</div>'+html+'<button class="btn" style="width:100%;margin-top:6px" onclick="rp()">↩ 返回首页</button>';
-    document.querySelectorAll('.del').forEach(b=>{b.onclick=function(){del(parseInt(this.dataset.id));};});
-    let ba=document.getElementById('btnDelAll');if(ba)ba.onclick=delAll;
+    closeHistory();
+    let overlay=document.createElement('div');
+    overlay.id='historyOverlay';
+    overlay.className='modal-overlay';
+    overlay.addEventListener('click',function(e){if(e.target===overlay)closeHistory();});
+    let box=document.createElement('div');
+    box.className='modal-box';
+    box.id='historyBox';
+    box.innerHTML=buildHistoryHTML();
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    bindHistoryEvents();
 }
-async function del(id){if(!confirm('确定删除？'))return;await sb.from('orders').delete().eq('id',id);await ld();openHistory();}
-async function delAll(){if(!confirm('⚠️清空全部？不可恢复！'))return;await sb.from('orders').delete().gt('id',0);await ld();rp();alert('已清空');}
 
+function refreshHistory(){
+    let box=document.getElementById('historyBox');
+    if(!box)return;
+    box.innerHTML=buildHistoryHTML();
+    bindHistoryEvents();
+}
+
+function bindHistoryEvents(){
+    document.querySelectorAll('#histList .del-btn').forEach(b=>{
+        b.onclick=function(){del(parseInt(this.dataset.id));};
+    });
+    let ba=document.getElementById('btnDelAll');
+    if(ba)ba.onclick=delAll;
+}
+
+function closeHistory(){
+    let overlay=document.getElementById('historyOverlay');
+    if(overlay)overlay.remove();
+}
+
+// ===== 删除 =====
+async function del(id){
+    let ok=await showConfirm('确定删除该订单？','🗑️ 确认删除','red',true);
+    if(!ok)return;
+    await sb.from('orders').delete().eq('id',id);
+    await ld();
+    let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
+    await showAlert('✅ 已删除\n\n📊 当前累计：\n总订单：'+total+' 单\n累计销售：¥'+sales.toFixed(2));
+    // 更新弹窗内数据
+    let tEl=document.getElementById('histTotal');
+    let sEl=document.getElementById('histSales');
+    if(tEl)tEl.textContent=total;
+    if(sEl)sEl.textContent='¥'+sales.toFixed(2);
+    let item=document.getElementById('hitem-'+id);
+    if(item)item.remove();
+    if(total===0){
+        let listEl=document.getElementById('histList');
+        if(listEl)listEl.innerHTML='<div style="text-align:center;color:#ccc;">暂无记录</div>';
+    }
+    rp();
+}
+
+async function delAll(){
+    let ok=await showConfirm('⚠️ 清空全部历史记录？<br><small style="color:#ff5252">此操作不可恢复</small>','🗑️ 确认清空','red',true);
+    if(!ok)return;
+    await sb.from('orders').delete().gt('id',0);
+    await ld();
+    closeHistory();
+    rp();
+    await showAlert('✅ 已清空全部历史记录');
+}
+
+// ===== 初始化 =====
 st(1);
 setInterval(()=>{ld();},30000);
 </script>
