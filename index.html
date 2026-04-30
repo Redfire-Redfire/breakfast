@@ -208,7 +208,16 @@ function toggleAdmin(){
 }
 
 // ===== 数据 =====
-async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});if(!error){cache=data||[];}rp();}
+async function ld(){
+    if(!isAdmin)return;
+    let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false})
+        .setHeader('x-admin-key',ADMIN_PW);
+    if(!error){cache=data||[];}
+    rp();
+}
+
+
+
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
 function ci(ods){let c={};ods.forEach(o=>o.items.forEach(i=>{if(!c[i.name])c[i.name]=0;c[i.name]+=i.qty;}));return Object.entries(c).sort((a,b)=>b[1]-a[1]);}
 function brk(data,max=5){if(data.length===0)return'<div style="text-align:center;color:#ccc;padding:10px;">暂无</div>';let mx=data[0][1];return data.slice(0,max).map((r,i)=>{let cl=i===0?'g1':i===1?'g2':i===2?'g3':'g4';return'<div class="rk"><div class="rb '+cl+'">'+(i+1)+'</div><span class="rn">'+r[0]+'</span><div class="rbar"><div class="rf" style="width:'+(r[1]/mx*100).toFixed(0)+'%"></div></div><span>'+r[1]+'</span></div>';}).join('');}
@@ -290,7 +299,8 @@ function closeHistory(){
 async function del(id){
     let ok=await showConfirm('确定删除该订单？','🗑️ 确认删除','red',true);
     if(!ok)return;
-    await sb.from('orders').delete().eq('id',id);
+    await sb.from('orders').delete().eq('id',id)
+    .setHeader('x-admin-key',ADMIN_PW);
     await ld();
     let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);
     await showAlert('✅ 已删除\n\n📊 当前累计：\n总订单：'+total+' 单\n累计销售：¥'+sales.toFixed(2));
@@ -311,7 +321,8 @@ async function del(id){
 async function delAll(){
     let ok=await showConfirm('⚠️ 清空全部历史记录？<br><small style="color:#ff5252">此操作不可恢复</small>','🗑️ 确认清空','red',true);
     if(!ok)return;
-    await sb.from('orders').delete().gt('id',0);
+    await sb.from('orders').delete().gt('id',0)
+    .setHeader('x-admin-key',ADMIN_PW);
     await ld();
     closeHistory();
     rp();
