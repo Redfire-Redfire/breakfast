@@ -12,12 +12,10 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#fef7e9 0%,#fff3e0 50%,#ffe0b2 100%);min-height:100vh;padding:12px;display:flex;justify-content:center;animation:fadeIn .5s ease}
-/* 页面入场 */
 @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .app{max-width:920px;width:100%;display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.03);transition:all .3s ease;animation:cardIn .4s ease both}
 .card:nth-child(1){animation-delay:0s}.card:nth-child(2){animation-delay:.1s}
-/* 卡片登场 */
 @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 .left{flex:1;min-width:340px;max-width:500px}
 .right{width:320px;position:sticky;top:14px;align-self:flex-start}
@@ -29,7 +27,6 @@ h2{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .btn.g{border-color:#43a047;color:#43a047}
 .btn.g:hover{background:#43a047;color:#fff;box-shadow:0 4px 12px rgba(67,160,71,.2)}
 .badge{background:#e65100;color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;margin-left:4px;animation:pulse 2s infinite}
-/* 按钮脉冲 */
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,124,0,.4)}50%{box-shadow:0 0 0 8px rgba(245,124,0,0)}}
 .tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin:10px 0}
 .tb{padding:10px 2px;border:2px solid #eee;border-radius:12px;text-align:center;font-weight:700;cursor:pointer;font-size:13px;color:#999;transition:all .25s ease;background:#fafafa}
@@ -52,6 +49,7 @@ h2{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .sb{font-size:14px;color:#f57c00;font-weight:700;min-width:42px;text-align:right}
 .tb2{background:linear-gradient(135deg,#fff8f0,#fff3e0);padding:12px;border-radius:12px;text-align:center;margin-top:10px;transition:all .3s}
 .tp{font-size:30px;color:#f57c00;font-weight:700;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 .br{display:flex;gap:8px;margin-top:10px}
 .bb{flex:1;padding:12px;background:linear-gradient(135deg,#ff9800,#f57c00);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s ease;box-shadow:0 4px 14px rgba(245,124,0,.2)}
 .bb:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,124,0,.3)}
@@ -66,7 +64,7 @@ h2{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .ss:hover{background:#f0f0f0}
 .ss .v{font-size:16px;font-weight:700;color:#f57c00}
 .ss .l{font-size:11px;color:#999}
-.st{font-size:13px;font-weight:700;margin:10px 0 5px;color:#444}
+.st{font-size:14px;font-weight:700;margin:10px 0 5px;color:#444}
 .rk{display:flex;align-items:center;gap:5px;padding:5px 8px;background:#fafafa;border-radius:8px;margin-bottom:4px;font-size:11px;transition:all .2s}
 .rk:hover{background:#fff3e0;transform:translateX(2px)}
 .rk .rb{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700}
@@ -74,9 +72,18 @@ h2{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .rk .rn{flex:1}
 .rk .rbar{flex:1;height:4px;background:#eee;border-radius:2px;overflow:hidden}
 .rk .rf{height:100%;background:linear-gradient(90deg,#ff9800,#f57c00);border-radius:2px;transition:width .5s ease}
-.tsr{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px dashed #eee;transition:all .2s}
+.tsr{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dashed #eee;transition:all .2s}
 .tsr:hover{background:#fafafa}
 .tsr span{color:#f57c00;font-weight:700}
+/* 最近订单列表 */
+.recent-item{display:flex;align-items:center;justify-content:space-between;padding:8px 4px;border-bottom:1px dashed #eee;font-size:13px;transition:all .2s}
+.recent-item:hover{background:#fafafa}
+.recent-item .rinfo{flex:1}
+.recent-item .rname{font-size:13px;font-weight:600;color:#333}
+.recent-item .rdetail{font-size:12px;color:#999;margin-top:1px}
+.recent-item .rprice{font-size:14px;font-weight:700;color:#f57c00}
+.recent-delete{width:22px;height:22px;border-radius:50%;border:none;background:#fff;color:#ff5252;cursor:pointer;font-size:11px;margin-left:6px;transition:all .2s;flex-shrink:0}
+.recent-delete:hover{background:#ff5252;color:#fff}
 /* 弹窗 */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:998;display:flex;align-items:center;justify-content:center;padding:14px;animation:fadeIn .2s ease;backdrop-filter:blur(2px)}
 .modal-box{background:#fff;border-radius:16px;padding:18px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;animation:cardIn .25s ease;box-shadow:0 20px 50px rgba(0,0,0,.15)}
@@ -104,7 +111,6 @@ h2{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .confirm-btn.org:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(245,124,0,.3)}
 .confirm-cancel{width:100%;padding:10px;background:#fff;border:1px solid #ddd;border-radius:12px;color:#999;font-size:14px;cursor:pointer;transition:all .2s}
 .confirm-cancel:hover{background:#f5f5f5}
-/* 骨架屏 */
 .skeleton{background:linear-gradient(90deg,#e0e0e0 25%,#f0f0f0 50%,#e0e0e0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:8px;height:20px;margin:8px 0}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @media(max-width:720px){.app{flex-direction:column;align-items:center}.right{position:static;width:100%;max-width:500px}}
@@ -141,7 +147,8 @@ h2{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 <script>
 const SUPABASE_URL = 'https://rvlovmrfszobzsouoevn.supabase.co';
 const SUPABASE_ANON_KEY =
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';const ADMIN_PW='najiu888';
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bG92bXJmc3pvYnpzb3VvZXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTMzNjYsImV4cCI6MjA5MzAyOTM2Nn0.pnlUamRDlO3U_oNWf1BQQTkC9tMM8gNdZGKPb2W3F2w';
+const ADMIN_PW='najiu888';
 
 const M=[
 {id:'jc',cat:'🫓 煎烙面食类',n:'韭菜盒子',p:3,e:'🥟',u:'片'},
@@ -181,6 +188,10 @@ const cart={};for(let t=1;t<=4;t++){cart[t]={};M.forEach(m=>cart[t][m.id]=0);}
 function st(t){cur=t;for(let i=1;i<=4;i++)document.getElementById('tb'+i).classList.remove('on');document.getElementById('tb'+t).classList.add('on');document.getElementById('ct').textContent='📍 当前：🪑 '+t+'号桌';M.forEach(m=>{document.getElementById('q-'+m.id).textContent=cart[t][m.id];document.getElementById('s-'+m.id).textContent='¥'+(cart[t][m.id]*m.p).toFixed(2);});ut();}
 function cq(id,d){let n=cart[cur][id]+d;if(n<0)n=0;if(n>99)n=99;cart[cur][id]=n;document.getElementById('q-'+id).textContent=n;document.getElementById('s-'+id).textContent='¥'+(n*M.find(m=>m.id===id).p).toFixed(2);ut();}
 function ut(){let t=0;M.forEach(m=>t+=cart[cur][m.id]*m.p);document.getElementById('tp').textContent='¥'+t.toFixed(2);}
+
+function showConfirm(msg,btnText,isDanger){return new Promise(resolve=>{let d=document.createElement('div');d.className='confirm-overlay';d.innerHTML='<div class="confirm-box"><div class="msg">'+msg+'</div><button id="cfmOk" class="confirm-btn '+(isDanger?'red':'org')+'">'+btnText+'</button><button id="cfmCancel" class="confirm-cancel">取消</button></div>';document.body.appendChild(d);document.getElementById('cfmOk').onclick=()=>{d.remove();resolve(true);};document.getElementById('cfmCancel').onclick=()=>{d.remove();resolve(false);};});}
+function showAlert(msg){return new Promise(resolve=>{let d=document.createElement('div');d.className='confirm-overlay';d.innerHTML='<div class="confirm-box"><div class="msg">'+msg+'</div><button id="alertOk" class="confirm-btn org">确定</button></div>';document.body.appendChild(d);document.getElementById('alertOk').onclick=()=>{d.remove();resolve();};});}
+
 function clearCart(){
     showConfirm('清空'+cur+'号桌？','🗑️ 清空',false).then(ok=>{
         if(!ok)return;
@@ -202,13 +213,8 @@ function toggleAdmin(){
         document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';
         document.getElementById('btnA').textContent='🔓 退出';
         ld();
-    }else if(p!==null){
-        showAlert('密码错误');
-    }
+    }else if(p!==null){showAlert('密码错误');}
 }
-
-function showConfirm(msg,btnText,isDanger){return new Promise(resolve=>{let d=document.createElement('div');d.className='confirm-overlay';d.innerHTML='<div class="confirm-box"><div class="msg">'+msg+'</div><button id="cfmOk" class="confirm-btn '+(isDanger?'red':'org')+'">'+btnText+'</button><button id="cfmCancel" class="confirm-cancel">取消</button></div>';document.body.appendChild(d);document.getElementById('cfmOk').onclick=()=>{d.remove();resolve(true);};document.getElementById('cfmCancel').onclick=()=>{d.remove();resolve(false);};});}
-function showAlert(msg){return new Promise(resolve=>{let d=document.createElement('div');d.className='confirm-overlay';d.innerHTML='<div class="confirm-box"><div class="msg">'+msg+'</div><button id="alertOk" class="confirm-btn org">确定</button></div>';document.body.appendChild(d);document.getElementById('alertOk').onclick=()=>{d.remove();resolve();};});}
 
 async function checkout(){
     let items=[],t=0,c=0,detail='';
@@ -223,27 +229,6 @@ async function checkout(){
     ut();ld();
 }
 
-function toggleAdmin(){
-    if(isAdmin){
-        isAdmin=false;cache=[];
-        document.getElementById('badge').textContent='';
-        document.getElementById('btnA').textContent='🔐 管理员';
-        ld();return;
-    }
-    let p=prompt('请输入管理密码：');
-    if(p===ADMIN_PW){
-        isAdmin=true;
-        document.getElementById('badge').innerHTML='<span class="badge">管理员</span>';
-        document.getElementById('btnA').textContent='🔓 退出';
-        ld();
-    }else if(p!==null){
-        showAlert('密码错误');
-    }
-}
-
-
-
-
 async function ld(){let{data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false}).setHeader('x-admin-key',ADMIN_PW);if(!error){cache=data||[];}rp();}
 function getHD(){return cache.map(o=>({id:o.id,date:new Date(o.created_at).toLocaleString('zh-CN'),table:o.table_num,items:o.items,total:o.total}));}
 function ci(ods){let c={};ods.forEach(o=>o.items.forEach(i=>{if(!c[i.name])c[i.name]=0;c[i.name]+=i.qty;}));return Object.entries(c).sort((a,b)=>b[1]-a[1]);}
@@ -252,13 +237,25 @@ function rp(){
     let h=getHD(),ts=new Date().toLocaleDateString('zh-CN'),tod=h.filter(o=>o.date.includes(ts)),tt=0;tod.forEach(o=>tt+=o.total);
     let tb={1:0,2:0,3:0,4:0},tc={1:0,2:0,3:0,4:0};tod.forEach(o=>{let tn=o.table;if(tb[tn]!==undefined){tb[tn]+=o.total;tc[tn]++;}});
     let th='';for(let t=1;t<=4;t++)th+='<div class="tsr">🪑 '+t+'号桌 <span>¥'+tb[t].toFixed(2)+'</span>（'+tc[t]+'单）</div>';
+    // 最近5单，字体加大+删除按钮
     let recentHTML='<div class="st" style="margin-top:8px">🕐 最近订单</div>';
     let recent=tod.slice(0,5);
-    if(recent.length===0){recentHTML+='<div style="text-align:center;color:#ccc;font-size:10px;padding:6px">暂无</div>';}
-    else{recent.forEach(o=>{let names=o.items.map(i=>i.name+'×'+i.qty).join('、');recentHTML+='<div style="font-size:10px;padding:4px 0;border-bottom:1px dashed #eee;display:flex;justify-content:space-between"><span>🪑'+o.table+'号桌 '+names+'</span><span style="color:#f57c00;font-weight:700">¥'+o.total.toFixed(2)+'</span></div>';});}
+    if(recent.length===0){
+        recentHTML+='<div style="text-align:center;color:#ccc;font-size:12px;padding:8px">暂无</div>';
+    }else{
+        recent.forEach(o=>{
+    let names=o.items.map(i=>i.name+'×'+i.qty).join('、');
+    let delBtn = isAdmin ? '<button class="recent-delete" data-id="'+o.id+'" title="删除">🗑️</button>' : '';
+    recentHTML+='<div class="recent-item" id="rec-'+o.id+'"><div class="rinfo"><div class="rname">🪑'+o.table+'号桌</div><div class="rdetail">'+names+'</div></div><span class="rprice">¥'+o.total.toFixed(2)+'</span>'+delBtn+'</div>';
+});
+    }
     let panelHTML='<div class="sb2"><div class="v">¥'+tt.toFixed(2)+'</div><div class="l">💰 今日销售额</div></div>'+'<div class="sr"><div class="ss"><div class="v">'+tod.length+'</div><div class="l">📋 今日订单</div></div></div>'+'<div class="st">🏆 今日畅销排行</div>'+brk(ci(tod),5)+'<div class="st" style="margin-top:8px">🪑 各桌今日</div>'+th+recentHTML;
     if(isAdmin){panelHTML+='<button class="btn g" style="width:100%;margin-top:8px" onclick="openHistory()">📋 全部记录</button>';}
     document.getElementById('panel').innerHTML=panelHTML;
+    // 绑定右侧最近订单删除按钮
+    document.querySelectorAll('.recent-delete').forEach(b=>{
+        b.onclick=function(){del(parseInt(this.dataset.id));};
+    });
 }
 
 function openExport(){if(!isAdmin){showAlert('请先登录管理员');return;}document.getElementById('panel').innerHTML='<div class="st">📥 导出Excel</div><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#43a047;color:#43a047" onclick="de(\'today\')">📅 仅今日</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#43a047;color:#43a047" onclick="de(\'week\')">📆 最近7天</button><button class="btn" style="display:block;width:100%;padding:8px;margin:4px 0;border-color:#43a047;color:#43a047" onclick="de(\'all\')">📚 全部历史</button><button class="btn" style="width:100%;margin-top:6px" onclick="rp()">↩ 返回</button>';}
@@ -280,16 +277,15 @@ function openHistory(){
     document.body.appendChild(overlay);
     bindHistoryEvents();
 }
-function refreshHistory(){let box=document.getElementById('historyBox');if(!box)return;box.innerHTML=buildHistoryHTML();bindHistoryEvents();}
 function bindHistoryEvents(){document.querySelectorAll('#histList .del-btn').forEach(b=>{b.onclick=function(){del(parseInt(this.dataset.id));};});let ba=document.getElementById('btnDelAll');if(ba)ba.onclick=delAll;}
 function closeHistory(){let overlay=document.getElementById('historyOverlay');if(overlay)overlay.remove();}
 
-async function del(id){let ok=await showConfirm('确定删除该订单？','🗑️ 确认删除',true);if(!ok)return;await sb.from('orders').delete().eq('id',id).setHeader('x-admin-key',ADMIN_PW);await ld();let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);await showAlert('✅ 已删除\n\n📊 当前累计：\n总订单：'+total+' 单\n累计销售：¥'+sales.toFixed(2));let tEl=document.getElementById('histTotal'),sEl=document.getElementById('histSales');if(tEl)tEl.textContent=total;if(sEl)sEl.textContent='¥'+sales.toFixed(2);let item=document.getElementById('hitem-'+id);if(item)item.remove();if(total===0){let le=document.getElementById('histList');if(le)le.innerHTML='<div style="text-align:center;color:#ccc;">暂无记录</div>';}rp();}
+async function del(id){let ok=await showConfirm('确定删除该订单？','🗑️ 确认删除',true);if(!ok)return;await sb.from('orders').delete().eq('id',id).setHeader('x-admin-key',ADMIN_PW);await ld();let h=getHD(),total=h.length,sales=0;h.forEach(x=>sales+=x.total);await showAlert('✅ 已删除\n\n📊 当前累计：\n总订单：'+total+' 单\n累计销售：¥'+sales.toFixed(2));rp();}
 async function delAll(){let ok=await showConfirm('⚠️ 清空全部历史记录？\n此操作不可恢复','🗑️ 确认清空',true);if(!ok)return;await sb.from('orders').delete().gt('id',0).setHeader('x-admin-key',ADMIN_PW);await ld();closeHistory();rp();await showAlert('✅ 已清空全部历史记录');}
 
 st(1);
-ld();  // 页面一打开就加载数据
-setInterval(()=>{ld();},10000);  // 10秒刷新一次
+ld();
+setInterval(()=>{ld();},10000);
 </script>
 </body>
 </html>
